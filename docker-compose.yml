@@ -1,0 +1,13 @@
+services:
+  mysql:
+    image: "mysql:latest"
+    container_name: clide_mysql
+    volumes:
+      - ./deploy/sql:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=clide
+      - MYSQL_USER=clide
+      - MYSQL_PASSWORD=clide
+      - MYSQL_RANDOM_ROOT_PASSWORD='yes'
