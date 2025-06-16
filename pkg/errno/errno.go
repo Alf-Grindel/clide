@@ -10,6 +10,7 @@ const (
 	ParamErrCode     = 40000
 	NotLoginErrCode  = 40100
 	NoAuthErrCode    = 40101
+	NotFoundErrCode  = 40400
 	SystemErrCode    = 50000
 	OperationErrCode = 50001
 )
@@ -37,6 +38,7 @@ var (
 	NotLoginErr  = NewErrNo(NotLoginErrCode, "用户未登录")
 	NoAuthErr    = NewErrNo(NoAuthErrCode, "无权限")
 	OperationErr = NewErrNo(OperationErrCode, "操作失败")
+	NotFoundErr  = NewErrNo(NotFoundErrCode, "请求数据不存在")
 )
 
 func (e ErrNo) WithMessage(msg string) ErrNo {

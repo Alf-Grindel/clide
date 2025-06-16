@@ -55,5 +55,8 @@ func main() {
 	adminGroup.GET("/query", handlers.QueryUsers)
 	adminGroup.GET("/get", handlers.GetUser)
 
+	fileGroup := h.Group("/file")
+	fileGroup.POST("/upload", handlers.UploadPicture).Use(mw.AuthMiddleware())
+
 	h.Spin()
 }

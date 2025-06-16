@@ -24,5 +24,23 @@ struct UserVo {
     4: string userProfile
     5: string editTime
     6: string createTime
-    7: string updateTime
+}
+
+struct PictureVo {
+    1: i64 id
+    2: string url
+    3: string pic_name
+    4: string introduction
+    5: string category
+    6: list<string> tags
+    7: i64 pic_size
+    8: i32 pic_width
+    9: i32 pic_height
+    10: double pic_scale
+    11: string pic_format
+    12: string edit_time
+    13: string create_time
+    14: string update_time
+    15: i64 user_id
+    16: UserVo user
 }

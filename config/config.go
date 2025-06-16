@@ -11,6 +11,7 @@ import (
 
 var (
 	Mysql *mysql
+	Cos   *cos
 
 	runtimeViper = viper.New()
 )
@@ -24,7 +25,8 @@ func Init() {
 	if err != nil {
 		hlog.Fatal(err)
 	}
-	runtimeViper.SetConfigName("config")
+	//runtimeViper.SetConfigName("config")
+	runtimeViper.SetConfigName("config_local")
 	runtimeViper.SetConfigType("yml")
 	runtimeViper.AddConfigPath(dir)
 
@@ -45,6 +47,7 @@ func mapping() {
 		hlog.Fatal("unmarshal config failed,", err)
 	}
 	Mysql = &c.MySQL
+	Cos = &c.Cos
 }
 
 func getPath(path string) (string, error) {

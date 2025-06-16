@@ -11,3 +11,4 @@ services:
       - MYSQL_USER=clide
       - MYSQL_PASSWORD=clide
       - MYSQL_RANDOM_ROOT_PASSWORD='yes'
+      - TZ=Asia/Shanghai 

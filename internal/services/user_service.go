@@ -23,6 +23,9 @@ func NewUserService(ctx context.Context) *UserService {
 	return &UserService{ctx}
 }
 
+// UserRegister 注册
+// Param: userRegisterReq
+// return: user_id
 func (s *UserService) UserRegister(req *user.UserRegisterReq) (int64, error) {
 	if req == nil {
 		return -1, errno.ParamErr
@@ -37,7 +40,7 @@ func (s *UserService) UserRegister(req *user.UserRegisterReq) (int64, error) {
 		hlog.Error(err)
 		return -1, errno.SystemErr.WithMessage("注册失败")
 	}
-	id, err := db.AddUser(s.ctx, &db.User{
+	id, err := db.CreateUser(s.ctx, &db.User{
 		UserAccount:  account,
 		UserPassword: password,
 	})
@@ -48,6 +51,9 @@ func (s *UserService) UserRegister(req *user.UserRegisterReq) (int64, error) {
 	return id, nil
 }
 
+// UserLogin 登录
+// Param: userLoginReq
+// return: user_vo 脱敏
 func (s *UserService) UserLogin(req *user.UserLoginReq, c *app.RequestContext) (*base.UserVo, error) {
 	if req == nil {
 		return nil, errno.ParamErr
@@ -73,9 +79,12 @@ func (s *UserService) UserLogin(req *user.UserLoginReq, c *app.RequestContext) (
 		hlog.Error("save session failed,", err)
 		return nil, errno.SystemErr.WithMessage("登录失败")
 	}
-	return objToVo(current), nil
+	return userObjToVo(current), nil
 }
 
+// GetLoginUser 获取登录用户
+// Param: requestContext
+// return: user_vo 脱敏
 func (s *UserService) GetLoginUser(c *app.RequestContext) (*base.UserVo, error) {
 	session := sessions.Default(c)
 	currentByte, ok := session.Get(constants.UserLoginState).([]byte)
@@ -88,9 +97,12 @@ func (s *UserService) GetLoginUser(c *app.RequestContext) (*base.UserVo, error) 
 		hlog.Error("unmarshal user failed,", err)
 		return nil, errno.NotLoginErr
 	}
-	return objToVo(current), nil
+	return userObjToVo(current), nil
 }
 
+// UserLogout 登出
+// Param: requestContext
+// return:
 func (s *UserService) UserLogout(c *app.RequestContext) error {
 	_, err := s.GetLoginUser(c)
 	if err != nil {
@@ -106,6 +118,9 @@ func (s *UserService) UserLogout(c *app.RequestContext) error {
 	return nil
 }
 
+// EditUser 修改用户信息 [用户] - 只允许修改自己的信息
+// Param: userEditReq
+// return: user_vo 脱敏
 func (s *UserService) EditUser(req *user.UserEditReq, c *app.RequestContext) (*base.UserVo, error) {
 	if req == nil {
 		return nil, errno.ParamErr
@@ -135,9 +150,12 @@ func (s *UserService) EditUser(req *user.UserEditReq, c *app.RequestContext) (*b
 		hlog.Error(err)
 		return nil, errno.SystemErr.WithMessage("更新失败")
 	}
-	return objToVo(current), nil
+	return userObjToVo(current), nil
 }
 
+// SearchUsers 搜素用户 分页
+// Param: userSearchReq
+// return: list<user_vo> 脱敏
 func (s *UserService) SearchUsers(req *user.UserSearchReq) (int64, []*base.UserVo, error) {
 	if req == nil {
 		return -1, nil, errno.ParamErr
@@ -162,9 +180,12 @@ func (s *UserService) SearchUsers(req *user.UserSearchReq) (int64, []*base.UserV
 		hlog.Error(err)
 		return -1, nil, errno.SystemErr.WithMessage("查询失败")
 	}
-	return total, objsToVos(users), nil
+	return total, userObjsToVos(users), nil
 }
 
+// AddUser 添加用户 [管理员]
+// Param: addUserReq
+// return: user_id
 func (s *UserService) AddUser(req *user.AddUserReq) (int64, error) {
 	if req == nil {
 		return -1, errno.ParamErr
@@ -194,6 +215,9 @@ func (s *UserService) AddUser(req *user.AddUserReq) (int64, error) {
 	return id, nil
 }
 
+// DeleteUser 删除用户 [管理员]
+// Param: deleteUserReq
+// return
 func (s *UserService) DeleteUser(req *user.DeleteUserReq) error {
 	if req == nil {
 		return errno.ParamErr
@@ -205,6 +229,9 @@ func (s *UserService) DeleteUser(req *user.DeleteUserReq) error {
 	return nil
 }
 
+// UpdateUser 更新用户 [管理员]
+// Param: updateUserReq
+// return: user_vo 脱敏
 func (s *UserService) UpdateUser(req *user.UpdateUserReq) (*base.UserVo, error) {
 	if req == nil {
 		return nil, errno.ParamErr
@@ -233,9 +260,12 @@ func (s *UserService) UpdateUser(req *user.UpdateUserReq) (*base.UserVo, error) 
 		hlog.Error(err)
 		return nil, errno.SystemErr.WithMessage("更新失败")
 	}
-	return objToVo(current), nil
+	return userObjToVo(current), nil
 }
 
+// QueryUser 查询用户 [管理员]
+// Param: queryUserReq
+// return: list<user_vo> 脱敏
 func (s *UserService) QueryUser(req *user.QueryUserReq) (int64, []*base.UserVo, error) {
 	if req == nil {
 		return -1, nil, errno.ParamErr
@@ -263,9 +293,12 @@ func (s *UserService) QueryUser(req *user.QueryUserReq) (int64, []*base.UserVo, 
 		hlog.Error(err)
 		return -1, nil, errno.SystemErr.WithMessage("查询失败")
 	}
-	return total, objsToVos(users), nil
+	return total, userObjsToVos(users), nil
 }
 
+// GetUser 根据id 获取用户 [管理员]
+// Param: getUserReq
+// return: user 未脱敏
 func (s *UserService) GetUser(req *user.GetUserReq) (*base.User, error) {
 	if req == nil {
 		return nil, errno.ParamErr
@@ -275,10 +308,10 @@ func (s *UserService) GetUser(req *user.GetUserReq) (*base.User, error) {
 		hlog.Error(err)
 		return nil, errno.SystemErr.WithMessage("查询失败")
 	}
-	return objToObj(current), nil
+	return userObjToObj(current), nil
 }
 
-func objToVo(current *db.User) *base.UserVo {
+func userObjToVo(current *db.User) *base.UserVo {
 	if current == nil {
 		return nil
 	}
@@ -297,22 +330,21 @@ func objToVo(current *db.User) *base.UserVo {
 		UserProfile: profile,
 		EditTime:    current.EditTime.Format(time.DateTime),
 		CreateTime:  current.CreateTime.Format(time.DateTime),
-		UpdateTime:  current.UpdateTime.Format(time.DateTime),
 	}
 }
 
-func objsToVos(users []*db.User) []*base.UserVo {
+func userObjsToVos(users []*db.User) []*base.UserVo {
 	if users == nil {
 		return nil
 	}
 	var res []*base.UserVo
 	for _, current := range users {
-		res = append(res, objToVo(current))
+		res = append(res, userObjToVo(current))
 	}
 	return res
 }
 
-func objToObj(current *db.User) *base.User {
+func userObjToObj(current *db.User) *base.User {
 	if current == nil {
 		return nil
 	}

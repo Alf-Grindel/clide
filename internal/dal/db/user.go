@@ -24,26 +24,13 @@ func (u User) TableName() string {
 	return constants.UserTableName
 }
 
-func AddUser(ctx context.Context, user *User) (int64, error) {
+func CreateUser(ctx context.Context, user *User) (int64, error) {
 	id, err := utils.GenerateId()
 	if err != nil {
 		return -1, err
 	}
 	user.Id = id
-	if user.UserRole == "" {
-		user.UserRole = "user"
-	}
-	now := time.Now()
-	if user.CreateTime.IsZero() {
-		user.CreateTime = now
-	}
-	if user.UpdateTime.IsZero() {
-		user.UpdateTime = now
-	}
-	if user.EditTime.IsZero() {
-		user.EditTime = now
-	}
-	res := DB.WithContext(ctx).Create(user)
+	res := DB.WithContext(ctx).Select("id", "user_account", "user_password").Create(user)
 	if err := res.Error; err != nil {
 		return -1, err
 	}
@@ -116,4 +103,17 @@ func UpdateUser(ctx context.Context, user *User) (*User, error) {
 		return nil, err
 	}
 	return current, nil
+}
+
+func AddUser(ctx context.Context, user *User) (int64, error) {
+	id, err := utils.GenerateId()
+	if err != nil {
+		return -1, err
+	}
+	user.Id = id
+	res := DB.WithContext(ctx).Select("id", "user_account", "user_password", "user_avatar", "user_profile", "user_role").Create(user)
+	if err := res.Error; err != nil {
+		return -1, err
+	}
+	return user.Id, nil
 }

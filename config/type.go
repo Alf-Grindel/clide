@@ -7,6 +7,19 @@ type mysql struct {
 	Database string
 }
 
+type client struct {
+	Host      string
+	SecretId  string
+	SecretKey string
+	Region    string
+	Bucket    string
+}
+
+type cos struct {
+	Client client
+}
+
 type Config struct {
 	MySQL mysql
+	Cos   cos
 }
