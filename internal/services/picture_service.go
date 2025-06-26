@@ -82,6 +82,193 @@ func (s *PictureService) UploadPicture(req *picture.PictureUploadReq, file *mult
 	return pictureObjToVo(res, user), nil
 }
 
+// DeletePictureById 删除图片
+// Param: pictureDeleteReq
+// return:
+func (s *PictureService) DeletePictureById(req *picture.PictureDeleteReq) error {
+	if _, err := db.QueryPictureById(s.ctx, req.ID); err != nil {
+		return errno.NotFoundErr
+	}
+	if err := db.DeletePictureById(s.ctx, req.ID); err != nil {
+		return errno.OperationErr.WithMessage("删除失败")
+	}
+	return nil
+}
+
+// UpdatePicture 更新图片
+// Param: pictureUpdateReq
+// return:
+func (s *PictureService) UpdatePicture(req *picture.PictureUpdateReq) error {
+	current, err := db.QueryPictureById(s.ctx, req.ID)
+	if err != nil {
+		return errno.NotFoundErr
+	}
+	if req.PicName != nil {
+		current.PicName = req.GetPicName()
+	}
+	if req.Introduction != nil {
+		current.Introduction = req.Introduction
+	}
+	if req.Category != nil {
+		current.Category = req.Category
+	}
+	if req.Tags != nil {
+		b, err := sonic.Marshal(req.Tags)
+		if err != nil {
+			hlog.Error(err)
+			return errno.OperationErr
+		}
+		s := string(b)
+		current.Tags = &s
+	}
+	if _, err = db.UpdatePicture(s.ctx, current); err != nil {
+		return errno.OperationErr.WithMessage("更新失败")
+	}
+	return nil
+}
+
+// EditPicture 用户更新图片
+func (s *PictureService) EditPicture(req *picture.PictureEditReq, user *base.UserVo) error {
+	current, err := db.QueryPictureById(s.ctx, req.ID)
+	if err != nil {
+		return errno.NotFoundErr
+	}
+	if user.ID != current.UserId {
+		return errno.NoAuthErr
+	}
+	if req.PicName != nil {
+		current.PicName = req.GetPicName()
+	}
+	if req.Introduction != nil {
+		current.Introduction = req.Introduction
+	}
+	if req.Category != nil {
+		current.Category = req.Category
+	}
+	if req.Tags != nil {
+		b, err := sonic.Marshal(req.Tags)
+		if err != nil {
+			hlog.Error(err)
+			return errno.OperationErr
+		}
+		s := string(b)
+		current.Tags = &s
+	}
+	current.EditTime = time.Now()
+	if _, err = db.UpdatePicture(s.ctx, current); err != nil {
+		return errno.OperationErr.WithMessage("更新失败")
+	}
+	return nil
+}
+
+// ListPicture 获取图片列表
+func (s *PictureService) ListPicture(req *picture.PictureQueryReq) (int64, []*base.PictureVo, error) {
+	current := &db.Picture{
+		Id:           req.GetID(),
+		PicName:      req.GetPicName(),
+		Introduction: req.Introduction,
+		Category:     req.Category,
+		PicSize:      req.GetPicSize(),
+		PicWidth:     req.GetPicWidth(),
+		PicHeight:    req.GetPicHeight(),
+		PicScale:     req.GetPicScale(),
+		PicFormat:    req.GetPicFormat(),
+		UserId:       req.GetUserID(),
+	}
+	if req.Tags != nil {
+		b, err := sonic.Marshal(req.Tags)
+		if err != nil {
+			hlog.Error(err)
+			return -1, nil, errno.OperationErr
+		}
+		s := string(b)
+		current.Tags = &s
+	}
+
+	var page int64
+	if req.CurrentPage != nil {
+		page = req.GetCurrentPage()
+		if page < 1 {
+			page = constants.CurrentPage
+		}
+	}
+
+	total, currents, err := db.QueryPicture(s.ctx, current, req.GetSearchText(), page)
+	if err != nil {
+		return -1, nil, errno.NotFoundErr
+	}
+	return total, pictureObjsToVos(s.ctx, currents), nil
+}
+
+// ListPictureVo 获取图片列表
+func (s *PictureService) ListPictureVo(req *picture.PictureSearchReq) (int64, []*base.PictureVo, error) {
+	current := &db.Picture{
+		Id:           req.GetID(),
+		PicName:      req.GetPicName(),
+		Introduction: req.Introduction,
+		Category:     req.Category,
+		PicSize:      req.GetPicSize(),
+		PicWidth:     req.GetPicWidth(),
+		PicHeight:    req.GetPicHeight(),
+		PicScale:     req.GetPicScale(),
+		PicFormat:    req.GetPicFormat(),
+		UserId:       req.GetUserID(),
+	}
+	if req.Tags != nil {
+		b, err := sonic.Marshal(req.Tags)
+		if err != nil {
+			hlog.Error(err)
+			return -1, nil, errno.OperationErr
+		}
+		s := string(b)
+		current.Tags = &s
+	}
+
+	var page int64
+	if req.CurrentPage != nil {
+		page = req.GetCurrentPage()
+		if page < 1 {
+			page = constants.CurrentPage
+		}
+	}
+
+	total, currents, err := db.QueryPicture(s.ctx, current, req.GetSearchText(), page)
+	if err != nil {
+		return -1, nil, errno.NotFoundErr
+	}
+	return total, pictureObjsToVos(s.ctx, currents), nil
+}
+
+// GetPictureById 根据id获取图片
+func (s *PictureService) GetPictureById(req *picture.PictureQueryByIdReq) (*base.PictureVo, error) {
+	current, err := db.QueryPictureById(s.ctx, req.GetID())
+	if err != nil {
+		hlog.Error(err)
+		return nil, errno.NotFoundErr
+	}
+	user, err := db.QueryUserById(s.ctx, current.UserId)
+	if err != nil {
+		hlog.Error(err)
+		return nil, errno.NotFoundErr
+	}
+	return pictureObjToVo(current, userObjToVo(user)), nil
+}
+
+// GetPictureVoById 根据id获取图片
+func (s *PictureService) GetPictureVoById(req *picture.PictureGetByIdReq) (*base.PictureVo, error) {
+	current, err := db.QueryPictureById(s.ctx, req.GetID())
+	if err != nil {
+		hlog.Error(err)
+		return nil, errno.NotFoundErr
+	}
+	user, err := db.QueryUserById(s.ctx, current.UserId)
+	if err != nil {
+		hlog.Error(err)
+		return nil, errno.NotFoundErr
+	}
+	return pictureObjToVo(current, userObjToVo(user)), nil
+}
+
 func pictureObjToVo(current *db.Picture, user *base.UserVo) *base.PictureVo {
 	if current == nil || user == nil {
 		return nil
@@ -120,4 +307,20 @@ func pictureObjToVo(current *db.Picture, user *base.UserVo) *base.PictureVo {
 		UserID:       current.UserId,
 		User:         user,
 	}
+}
+
+func pictureObjsToVos(ctx context.Context, currents []*db.Picture) []*base.PictureVo {
+	if currents == nil {
+		return nil
+	}
+	var pictures []*base.PictureVo
+	for _, current := range currents {
+		user, err := db.QueryUserById(ctx, current.UserId)
+		if err != nil {
+			hlog.Error("can not find user", err)
+			return nil
+		}
+		pictures = append(pictures, pictureObjToVo(current, userObjToVo(user)))
+	}
+	return pictures
 }

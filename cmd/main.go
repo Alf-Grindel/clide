@@ -48,15 +48,25 @@ func main() {
 	userGroup.POST("/edit", handlers.UserEdit)
 	userGroup.GET("/search", handlers.UserSearches)
 	// admin
-	adminGroup := userGroup.Use(mw.AuthMiddleware())
-	adminGroup.POST("/add", handlers.AddUser)
-	adminGroup.POST("/delete", handlers.DeleteUser)
-	adminGroup.POST("/update", handlers.UpdateUser)
-	adminGroup.GET("/query", handlers.QueryUsers)
-	adminGroup.GET("/get", handlers.GetUser)
+	adminUserGroup := userGroup.Use(mw.AuthMiddleware())
+	adminUserGroup.POST("/add", handlers.AddUser)
+	adminUserGroup.POST("/delete", handlers.DeleteUser)
+	adminUserGroup.POST("/update", handlers.UpdateUser)
+	adminUserGroup.GET("/query", handlers.QueryUsers)
+	adminUserGroup.GET("/get", handlers.GetUser)
 
 	fileGroup := h.Group("/file")
-	fileGroup.POST("/upload", handlers.UploadPicture).Use(mw.AuthMiddleware())
+
+	fileGroup.POST("/edit", handlers.EditPicture)
+	fileGroup.GET("/search", handlers.GetPictureVoById)
+	fileGroup.GET("/list", handlers.ListPictureVo)
+
+	adminFileGroup := fileGroup.Use(mw.AuthMiddleware())
+	adminFileGroup.POST("/upload", handlers.UploadPicture)
+	adminFileGroup.POST("/delete", handlers.DeletePicture)
+	adminFileGroup.POST("/update", handlers.UpdatePicture)
+	adminFileGroup.GET("/get", handlers.GetPictureById)
+	adminFileGroup.GET("/query", handlers.ListPicture)
 
 	h.Spin()
 }
