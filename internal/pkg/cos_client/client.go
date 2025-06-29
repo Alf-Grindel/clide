@@ -1,10 +1,11 @@
-package mw
+package tencentCos
 
 import (
 	"context"
 	"fmt"
 	"github.com/Alf-Grindel/clide/config"
 	"github.com/Alf-Grindel/clide/pkg/constants"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/tencentyun/cos-go-sdk-v5"
 	"mime/multipart"
 	"net/http"
@@ -34,6 +35,7 @@ func NewTencentClient() *TencentClient {
 func (s *TencentClient) PutObj(ctx context.Context, key string, file multipart.File) (string, error) {
 	_, err := s.client.Object.Put(ctx, key, file, nil)
 	if err != nil {
+		hlog.Errorf("cos_client - PutObj: put file to cos failed, %s\n", err)
 		return "", err
 	}
 	return key, nil
@@ -42,6 +44,7 @@ func (s *TencentClient) PutObj(ctx context.Context, key string, file multipart.F
 func (s *TencentClient) GetObj(ctx context.Context, key string) (*cos.Response, error) {
 	resp, err := s.client.Object.Get(ctx, key, nil)
 	if err != nil {
+		hlog.Errorf("cos_client - GetObj: get file from cos failed, %s\n", err)
 		return nil, err
 	}
 	return resp, nil
@@ -61,6 +64,7 @@ func (s *TencentClient) PutPictureObj(ctx context.Context, key string, file mult
 
 	res, _, err := s.client.CI.Put(ctx, key, file, opt)
 	if err != nil {
+		hlog.Errorf("cos_client - PutPictureObj: put picture to cos failed, %s\n", err)
 		return nil, err
 	}
 	return res, nil

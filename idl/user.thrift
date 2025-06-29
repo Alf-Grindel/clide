@@ -49,7 +49,8 @@ struct UserSearchReq {
     1: optional i64 id
     2: optional string user_account (api.vd = "$ == null || (len($) >= 4 && regexp('^[a-zA-Z0-9]+$'))")
     3: optional string user_profile
-    4: optional i64 current_page
+    4: i64 current_page
+    5: i64 page_size
 }
 
 struct UserSearchResp {
@@ -96,7 +97,8 @@ struct QueryUserReq {
     2: optional string user_account (api.vd = "$ == null || (len($) >= 4 && regexp('^[a-zA-Z0-9]+$'))")
     3: optional string user_role
     4: optional string user_profile
-    5: optional i64 current_page
+    5: i64 current_page
+    6: i64 page_size
 }
 
 struct QueryUserResp {
@@ -115,8 +117,12 @@ struct GetUserResp {
 }
 
 service UserServices {
+
+    ## public
     UserRegisterResp UserRegister(1:UserLoginReq req)
     UserLoginResp UserLogin(1:UserLoginReq req)
+
+    ## auth
     GetLoginUserResp GetLoginUser(1: GetLoginUserReq req)
     UserLogoutResp LogoutUser(1: UserLogoutReq req)
     UserEditResp UserEdit(1: UserEditReq req)

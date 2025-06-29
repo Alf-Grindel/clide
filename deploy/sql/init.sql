@@ -1,3 +1,5 @@
+create database if not exists clide;
+
 use clide;
 
 -- 用户表

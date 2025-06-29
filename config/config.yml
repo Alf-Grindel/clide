@@ -3,3 +3,12 @@ mysql:
   user: clide
   password: clide
   database: clide
+
+
+cos:
+  client:
+    host: xxx
+    secretId: xxx
+    secretKey: xxx
+    region: xxx
+    bucket: xxx

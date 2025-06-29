@@ -30,3 +30,10 @@ const (
 	PageSize    = 20
 	CurrentPage = 1
 )
+
+var (
+	IsDeleteMap = map[int]string{
+		0: "未删除",
+		1: "已删除",
+	}
+)

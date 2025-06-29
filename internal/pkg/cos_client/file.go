@@ -1,4 +1,4 @@
-package mw
+package tencentCos
 
 import (
 	"context"
@@ -45,33 +45,7 @@ var filetype = map[string]struct{}{
 	"webp": {},
 }
 
-func (s *TencentFile) UploadPicture(file *multipart.FileHeader, uploadPathPrefix string) (*File, error) {
-	uploadFileName, err := validPicture(file)
-	if err != nil {
-		return nil, err
-	}
-	uploadPath := fmt.Sprintf(constants.UploadPath, uploadPathPrefix, uploadFileName)
-	fileOpen, err := file.Open()
-	if err != nil {
-		return nil, errno.SystemErr.WithMessage("上传失败")
-	}
-	defer fileOpen.Close()
-	imageProcessResult, err := s.client.PutPictureObj(s.ctx, uploadPath, fileOpen)
-	if err != nil {
-		return nil, err
-	}
-	pictureInfo := imageProcessResult.OriginalInfo.ImageInfo
-	return &File{
-		Url:       config.Cos.Client.Host + "/" + uploadPath,
-		PicName:   strings.TrimSuffix(file.Filename, filepath.Ext(file.Filename)),
-		PicSize:   file.Size,
-		PicWidth:  int32(pictureInfo.Width),
-		PicHeight: int32(pictureInfo.Height),
-		PicScale:  float64(pictureInfo.Width) / float64(pictureInfo.Height),
-		PicFormat: pictureInfo.Format,
-	}, nil
-}
-
+// 校验文件
 func validFileFormat(file *multipart.FileHeader) (string, error) {
 	fileType := filepath.Ext(file.Filename)
 	if fileType == "" {
@@ -83,7 +57,7 @@ func validFileFormat(file *multipart.FileHeader) (string, error) {
 	}
 	id, err := utils.GenerateId()
 	if err != nil {
-		hlog.Error("build uuid failed,", err)
+		hlog.Errorf("cos_client - validFileFormat: build uuid failed, %s\n", err)
 		return "", errno.SystemErr
 	}
 	uuid := strconv.Itoa(int(id))
@@ -91,7 +65,6 @@ func validFileFormat(file *multipart.FileHeader) (string, error) {
 	return fmt.Sprintf(constants.UploadFileName, day, uuid, subfix), nil
 }
 
-// 校验文件
 func validPicture(file *multipart.FileHeader) (string, error) {
 	if file == nil {
 		return "", errno.ParamErr.WithMessage("文件不能为空")
@@ -105,4 +78,31 @@ func validPicture(file *multipart.FileHeader) (string, error) {
 		return "", err
 	}
 	return uploadFileName, nil
+}
+
+func (s *TencentFile) UploadPicture(file *multipart.FileHeader, uploadPathPrefix string) (*File, error) {
+	uploadFileName, err := validPicture(file)
+	if err != nil {
+		return nil, err
+	}
+	uploadPath := fmt.Sprintf(constants.UploadPath, uploadPathPrefix, uploadFileName)
+	fileOpen, err := file.Open()
+	if err != nil {
+		return nil, errno.SystemErr.WithMessage("上传失败")
+	}
+	defer fileOpen.Close()
+	imageProcessResult, err := s.client.PutPictureObj(s.ctx, uploadPath, fileOpen)
+	if err != nil {
+		return nil, errno.SystemErr.WithMessage("上传失败")
+	}
+	pictureInfo := imageProcessResult.OriginalInfo.ImageInfo
+	return &File{
+		Url:       config.Cos.Client.Host + "/" + uploadPath,
+		PicName:   strings.TrimSuffix(file.Filename, filepath.Ext(file.Filename)),
+		PicSize:   file.Size,
+		PicWidth:  int32(pictureInfo.Width),
+		PicHeight: int32(pictureInfo.Height),
+		PicScale:  float64(pictureInfo.Width) / float64(pictureInfo.Height),
+		PicFormat: pictureInfo.Format,
+	}, nil
 }

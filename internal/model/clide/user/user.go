@@ -1730,7 +1730,8 @@ type UserSearchReq struct {
 	ID          *int64  `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
 	UserAccount *string `thrift:"user_account,2,optional" form:"user_account" json:"user_account,omitempty" query:"user_account" vd:"$ == null || (len($) >= 4 && regexp('^[a-zA-Z0-9]+$'))"`
 	UserProfile *string `thrift:"user_profile,3,optional" form:"user_profile" json:"user_profile,omitempty" query:"user_profile"`
-	CurrentPage *int64  `thrift:"current_page,4,optional" form:"current_page" json:"current_page,omitempty" query:"current_page"`
+	CurrentPage int64   `thrift:"current_page,4" form:"current_page" json:"current_page" query:"current_page"`
+	PageSize    int64   `thrift:"page_size,5" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewUserSearchReq() *UserSearchReq {
@@ -1767,13 +1768,12 @@ func (p *UserSearchReq) GetUserProfile() (v string) {
 	return *p.UserProfile
 }
 
-var UserSearchReq_CurrentPage_DEFAULT int64
-
 func (p *UserSearchReq) GetCurrentPage() (v int64) {
-	if !p.IsSetCurrentPage() {
-		return UserSearchReq_CurrentPage_DEFAULT
-	}
-	return *p.CurrentPage
+	return p.CurrentPage
+}
+
+func (p *UserSearchReq) GetPageSize() (v int64) {
+	return p.PageSize
 }
 
 var fieldIDToName_UserSearchReq = map[int16]string{
@@ -1781,6 +1781,7 @@ var fieldIDToName_UserSearchReq = map[int16]string{
 	2: "user_account",
 	3: "user_profile",
 	4: "current_page",
+	5: "page_size",
 }
 
 func (p *UserSearchReq) IsSetID() bool {
@@ -1793,10 +1794,6 @@ func (p *UserSearchReq) IsSetUserAccount() bool {
 
 func (p *UserSearchReq) IsSetUserProfile() bool {
 	return p.UserProfile != nil
-}
-
-func (p *UserSearchReq) IsSetCurrentPage() bool {
-	return p.CurrentPage != nil
 }
 
 func (p *UserSearchReq) Read(iprot thrift.TProtocol) (err error) {
@@ -1844,6 +1841,14 @@ func (p *UserSearchReq) Read(iprot thrift.TProtocol) (err error) {
 		case 4:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 5:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1913,13 +1918,24 @@ func (p *UserSearchReq) ReadField3(iprot thrift.TProtocol) error {
 }
 func (p *UserSearchReq) ReadField4(iprot thrift.TProtocol) error {
 
-	var _field *int64
+	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		_field = &v
+		_field = v
 	}
 	p.CurrentPage = _field
+	return nil
+}
+func (p *UserSearchReq) ReadField5(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.PageSize = _field
 	return nil
 }
 
@@ -1943,6 +1959,10 @@ func (p *UserSearchReq) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 	}
@@ -2018,22 +2038,36 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 func (p *UserSearchReq) writeField4(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCurrentPage() {
-		if err = oprot.WriteFieldBegin("current_page", thrift.I64, 4); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.CurrentPage); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("current_page", thrift.I64, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.CurrentPage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+func (p *UserSearchReq) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.PageSize); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *UserSearchReq) String() string {
@@ -3644,7 +3678,8 @@ type QueryUserReq struct {
 	UserAccount *string `thrift:"user_account,2,optional" form:"user_account" json:"user_account,omitempty" query:"user_account" vd:"$ == null || (len($) >= 4 && regexp('^[a-zA-Z0-9]+$'))"`
 	UserRole    *string `thrift:"user_role,3,optional" form:"user_role" json:"user_role,omitempty" query:"user_role"`
 	UserProfile *string `thrift:"user_profile,4,optional" form:"user_profile" json:"user_profile,omitempty" query:"user_profile"`
-	CurrentPage *int64  `thrift:"current_page,5,optional" form:"current_page" json:"current_page,omitempty" query:"current_page"`
+	CurrentPage int64   `thrift:"current_page,5" form:"current_page" json:"current_page" query:"current_page"`
+	PageSize    int64   `thrift:"page_size,6" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewQueryUserReq() *QueryUserReq {
@@ -3690,13 +3725,12 @@ func (p *QueryUserReq) GetUserProfile() (v string) {
 	return *p.UserProfile
 }
 
-var QueryUserReq_CurrentPage_DEFAULT int64
-
 func (p *QueryUserReq) GetCurrentPage() (v int64) {
-	if !p.IsSetCurrentPage() {
-		return QueryUserReq_CurrentPage_DEFAULT
-	}
-	return *p.CurrentPage
+	return p.CurrentPage
+}
+
+func (p *QueryUserReq) GetPageSize() (v int64) {
+	return p.PageSize
 }
 
 var fieldIDToName_QueryUserReq = map[int16]string{
@@ -3705,6 +3739,7 @@ var fieldIDToName_QueryUserReq = map[int16]string{
 	3: "user_role",
 	4: "user_profile",
 	5: "current_page",
+	6: "page_size",
 }
 
 func (p *QueryUserReq) IsSetID() bool {
@@ -3721,10 +3756,6 @@ func (p *QueryUserReq) IsSetUserRole() bool {
 
 func (p *QueryUserReq) IsSetUserProfile() bool {
 	return p.UserProfile != nil
-}
-
-func (p *QueryUserReq) IsSetCurrentPage() bool {
-	return p.CurrentPage != nil
 }
 
 func (p *QueryUserReq) Read(iprot thrift.TProtocol) (err error) {
@@ -3780,6 +3811,14 @@ func (p *QueryUserReq) Read(iprot thrift.TProtocol) (err error) {
 		case 5:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField5(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 6:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -3860,13 +3899,24 @@ func (p *QueryUserReq) ReadField4(iprot thrift.TProtocol) error {
 }
 func (p *QueryUserReq) ReadField5(iprot thrift.TProtocol) error {
 
-	var _field *int64
+	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
 	} else {
-		_field = &v
+		_field = v
 	}
 	p.CurrentPage = _field
+	return nil
+}
+func (p *QueryUserReq) ReadField6(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.PageSize = _field
 	return nil
 }
 
@@ -3894,6 +3944,10 @@ func (p *QueryUserReq) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 	}
@@ -3987,22 +4041,36 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 func (p *QueryUserReq) writeField5(oprot thrift.TProtocol) (err error) {
-	if p.IsSetCurrentPage() {
-		if err = oprot.WriteFieldBegin("current_page", thrift.I64, 5); err != nil {
-			goto WriteFieldBeginError
-		}
-		if err := oprot.WriteI64(*p.CurrentPage); err != nil {
-			return err
-		}
-		if err = oprot.WriteFieldEnd(); err != nil {
-			goto WriteFieldEndError
-		}
+	if err = oprot.WriteFieldBegin("current_page", thrift.I64, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.CurrentPage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
 	}
 	return nil
 WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+func (p *QueryUserReq) writeField6(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 6); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.PageSize); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
 func (p *QueryUserReq) String() string {
@@ -4607,7 +4675,7 @@ type UserServices interface {
 	UserRegister(ctx context.Context, req *UserLoginReq) (r *UserRegisterResp, err error)
 
 	UserLogin(ctx context.Context, req *UserLoginReq) (r *UserLoginResp, err error)
-
+	//# auth
 	GetLoginUser(ctx context.Context, req *GetLoginUserReq) (r *GetLoginUserResp, err error)
 
 	LogoutUser(ctx context.Context, req *UserLogoutReq) (r *UserLogoutResp, err error)
