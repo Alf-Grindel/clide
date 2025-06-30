@@ -14,18 +14,19 @@ func RegisterFileRouters(h *server.Hertz) {
 	fileAuthGroup := h.Group("/file", mw.AuthMiddleware())
 
 	// admin-only file router
-	adminGroup := fileAuthGroup.Group("/admin", mw.AdminMidleware())
+	adminGroup := fileAuthGroup.Group("/admin", mw.AdminMiddleware())
 
 	filePublicGroup.GET("/search", file_handler.PictureSearch)
 	filePublicGroup.GET("/get", file_handler.PictureGetById)
 	filePublicGroup.GET("/tag_category", file_handler.PictureListTagCategory)
 
 	fileAuthGroup.POST("/edit", file_handler.PictureEdit)
+	fileAuthGroup.POST("/upload", file_handler.UploadPicture)
 
 	// admin - only file
-	adminGroup.POST("/upload", file_handler.UploadPicture)
 	adminGroup.POST("/delete", file_handler.DeletePicture)
 	adminGroup.POST("/update", file_handler.UpdatePicture)
 	adminGroup.GET("/get", file_handler.QueryPictureById)
 	adminGroup.GET("/query", file_handler.QueryPicture)
+	adminGroup.POST("/review", file_handler.ReviewPicture)
 }

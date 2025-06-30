@@ -33,7 +33,7 @@ func AuthMiddleware() app.HandlerFunc {
 	}
 }
 
-func AdminMidleware() app.HandlerFunc {
+func AdminMiddleware() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		role, ok := c.Get("user_role")
 		if !ok {

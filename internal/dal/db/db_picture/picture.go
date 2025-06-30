@@ -10,22 +10,26 @@ import (
 )
 
 type Picture struct {
-	Id           int64     `json:"id"`
-	Url          string    `json:"url"`
-	PicName      string    `json:"pic_name"`
-	Introduction string    `json:"introduction"`
-	Category     string    `json:"category"`
-	Tags         string    `json:"tags"`
-	PicSize      int64     `json:"pic_size"`
-	PicWidth     int32     `json:"pic_width"`
-	PicHeight    int32     `json:"pic_height"`
-	PicScale     float64   `json:"pic_scale"`
-	PicFormat    string    `json:"pic_format"`
-	UserId       int64     `json:"user_id"`
-	EditTime     time.Time `json:"edit_time"`
-	CreateTime   time.Time `json:"create_time" gorm:"<-:false"`
-	UpdateTime   time.Time `json:"update_time" gorm:"<-:false"`
-	IsDelete     int       `json:"is_delete"`
+	Id            int64     `json:"id"`
+	Url           string    `json:"url"`
+	PicName       string    `json:"pic_name"`
+	Introduction  string    `json:"introduction"`
+	Category      string    `json:"category"`
+	Tags          string    `json:"tags"`
+	PicSize       int64     `json:"pic_size"`
+	PicWidth      int32     `json:"pic_width"`
+	PicHeight     int32     `json:"pic_height"`
+	PicScale      float64   `json:"pic_scale"`
+	PicFormat     string    `json:"pic_format"`
+	UserId        int64     `json:"user_id"`
+	EditTime      time.Time `json:"edit_time"`
+	CreateTime    time.Time `json:"create_time" gorm:"<-:false"`
+	UpdateTime    time.Time `json:"update_time" gorm:"<-:false"`
+	IsDelete      int       `json:"is_delete"`
+	ReviewStatus  int       `json:"review_status"`
+	ReviewMessage string    `json:"review_message"`
+	ReviewId      int64     `json:"review_id"`
+	ReviewTime    time.Time `json:"review_time"`
 }
 
 func (p Picture) TableName() string {
@@ -57,6 +61,15 @@ func CreatePicture(ctx context.Context, picture *Picture) (int64, error) {
 	}
 	if picture.Tags == "" {
 		omitFields = append(omitFields, "tags")
+	}
+	if picture.ReviewMessage == "" {
+		omitFields = append(omitFields, "review_message")
+	}
+	if picture.ReviewId == 0 {
+		omitFields = append(omitFields, "review_id")
+	}
+	if picture.ReviewTime.IsZero() {
+		omitFields = append(omitFields, "review_time")
 	}
 	res := db.DB.WithContext(ctx).Omit(omitFields...).Create(&picture)
 	if err := res.Error; err != nil {
@@ -118,8 +131,11 @@ func QueryPictureById(ctx context.Context, id int64) (*Picture, error) {
 // QueryPicture - query picture based on given filter
 // params:
 //   - picture
-//     optional: id, picName, introduction, category, tags, picSize, picWidth, PicHeight, picScale, picFormat, userId
+//     required: reviewStatus
+//     optional: id, picName, introduction, category, picSize, picWidth, PicHeight, picScale, picFormat, userId,
+//     optional: reviewMessage, reviewId
 //   - searchText: match picName or introduction (optional)
+//   - tags: tags list (must all match) optional
 //   - currentPage (required)
 //   - pageSize (required)
 //
@@ -127,23 +143,11 @@ func QueryPictureById(ctx context.Context, id int64) (*Picture, error) {
 //   - total: total number of matched picture
 //   - pictures: list of picture matching the criteria
 //   - error: nil on success, non-nil on failure
-func QueryPicture(ctx context.Context, picture *Picture, searchText string, currentPage, pageSize int64) (int64, []*Picture, error) {
+func QueryPicture(ctx context.Context, picture *Picture, searchText string, tags []string, currentPage, pageSize int64) (int64, []*Picture, error) {
 	var pictures []*Picture
-	res := db.DB.WithContext(ctx).Model(&Picture{}).Where("is_delete = 0")
+	res := db.DB.WithContext(ctx).Model(&Picture{}).Where("is_delete = 0 ")
 	if picture.Id != 0 {
 		res = res.Where("id = ?", picture.Id)
-	}
-	if picture.PicName != "" {
-		res = res.Where("pic_name = ?", picture.PicName)
-	}
-	if picture.Introduction != "" {
-		res = res.Where("introduction = ?", picture.Introduction)
-	}
-	if picture.Category != "" {
-		res = res.Where("category = ?", picture.Category)
-	}
-	if picture.Tags != "" {
-		res = res.Where(" tags like ? ", "%\""+picture.Tags+"\"%")
 	}
 	if picture.PicSize != 0 {
 		res = res.Where("pic_size = ?", picture.PicSize)
@@ -157,14 +161,39 @@ func QueryPicture(ctx context.Context, picture *Picture, searchText string, curr
 	if picture.PicScale != 0.0 {
 		res = res.Where("pic_scale = ?", picture.PicScale)
 	}
-	if picture.PicFormat != "" {
-		res = res.Where("pic_format = ?", picture.PicFormat)
-	}
 	if picture.UserId != 0 {
 		res = res.Where("user_id = ?", picture.UserId)
 	}
+	if picture.ReviewId != 0 {
+		res = res.Where("review_id = ?", picture.ReviewId)
+	}
+	if picture.ReviewStatus != -1 {
+		res = res.Where("review_status = ?", picture.ReviewStatus)
+	}
+
+	if picture.PicName != "" {
+		res = res.Where("pic_name like ?", "%"+picture.PicName+"%")
+	}
+	if picture.Introduction != "" {
+		res = res.Where("introduction like ? ", "%"+picture.Introduction+"%")
+	}
+	if picture.Category != "" {
+		res = res.Where("category like ?", "%"+picture.Category+"%")
+	}
+	if picture.PicFormat != "" {
+		res = res.Where("pic_format like ?", "%"+picture.PicFormat+"%")
+	}
+	if picture.ReviewMessage != "" {
+		res = res.Where("review_message like ?", "%"+picture.ReviewMessage+"%")
+	}
 	if searchText != "" {
 		res = res.Where("pic_name like ? or introduction like ?", "%"+searchText+"%", "%"+searchText+"%")
+	}
+
+	if tags != nil {
+		for _, tag := range tags {
+			res = res.Where(" tags like ? ", "%\""+tag+"\"%")
+		}
 	}
 
 	var total int64

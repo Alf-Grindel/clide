@@ -44,6 +44,10 @@ struct Picture {
     15: string isDelete
     16: i64 userId
     17: User user
+    18: string reviewStatus
+    19: string reviewMessage
+    20: i64 reviewId
+    21: string reviewTime
 }
 
 struct PictureVo {

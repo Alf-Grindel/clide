@@ -1055,23 +1055,27 @@ func (p *UserVo) String() string {
 }
 
 type Picture struct {
-	ID           int64    `thrift:"id,1" form:"id" json:"id" query:"id"`
-	URL          string   `thrift:"url,2" form:"url" json:"url" query:"url"`
-	PicName      string   `thrift:"picName,3" form:"picName" json:"picName" query:"picName"`
-	Introduction string   `thrift:"introduction,4" form:"introduction" json:"introduction" query:"introduction"`
-	Category     string   `thrift:"category,5" form:"category" json:"category" query:"category"`
-	Tags         []string `thrift:"tags,6" form:"tags" json:"tags" query:"tags"`
-	PicSize      int64    `thrift:"picSize,7" form:"picSize" json:"picSize" query:"picSize"`
-	PicWidth     int32    `thrift:"picWidth,8" form:"picWidth" json:"picWidth" query:"picWidth"`
-	PicHeight    int32    `thrift:"picHeight,9" form:"picHeight" json:"picHeight" query:"picHeight"`
-	PicScale     float64  `thrift:"picScale,10" form:"picScale" json:"picScale" query:"picScale"`
-	PicFormat    string   `thrift:"picFormat,11" form:"picFormat" json:"picFormat" query:"picFormat"`
-	EditTime     string   `thrift:"editTime,12" form:"editTime" json:"editTime" query:"editTime"`
-	CreateTime   string   `thrift:"createTime,13" form:"createTime" json:"createTime" query:"createTime"`
-	UpdateTime   string   `thrift:"updateTime,14" form:"updateTime" json:"updateTime" query:"updateTime"`
-	IsDelete     string   `thrift:"isDelete,15" form:"isDelete" json:"isDelete" query:"isDelete"`
-	UserId       int64    `thrift:"userId,16" form:"userId" json:"userId" query:"userId"`
-	User         *User    `thrift:"user,17" form:"user" json:"user" query:"user"`
+	ID            int64    `thrift:"id,1" form:"id" json:"id" query:"id"`
+	URL           string   `thrift:"url,2" form:"url" json:"url" query:"url"`
+	PicName       string   `thrift:"picName,3" form:"picName" json:"picName" query:"picName"`
+	Introduction  string   `thrift:"introduction,4" form:"introduction" json:"introduction" query:"introduction"`
+	Category      string   `thrift:"category,5" form:"category" json:"category" query:"category"`
+	Tags          []string `thrift:"tags,6" form:"tags" json:"tags" query:"tags"`
+	PicSize       int64    `thrift:"picSize,7" form:"picSize" json:"picSize" query:"picSize"`
+	PicWidth      int32    `thrift:"picWidth,8" form:"picWidth" json:"picWidth" query:"picWidth"`
+	PicHeight     int32    `thrift:"picHeight,9" form:"picHeight" json:"picHeight" query:"picHeight"`
+	PicScale      float64  `thrift:"picScale,10" form:"picScale" json:"picScale" query:"picScale"`
+	PicFormat     string   `thrift:"picFormat,11" form:"picFormat" json:"picFormat" query:"picFormat"`
+	EditTime      string   `thrift:"editTime,12" form:"editTime" json:"editTime" query:"editTime"`
+	CreateTime    string   `thrift:"createTime,13" form:"createTime" json:"createTime" query:"createTime"`
+	UpdateTime    string   `thrift:"updateTime,14" form:"updateTime" json:"updateTime" query:"updateTime"`
+	IsDelete      string   `thrift:"isDelete,15" form:"isDelete" json:"isDelete" query:"isDelete"`
+	UserId        int64    `thrift:"userId,16" form:"userId" json:"userId" query:"userId"`
+	User          *User    `thrift:"user,17" form:"user" json:"user" query:"user"`
+	ReviewStatus  string   `thrift:"reviewStatus,18" form:"reviewStatus" json:"reviewStatus" query:"reviewStatus"`
+	ReviewMessage string   `thrift:"reviewMessage,19" form:"reviewMessage" json:"reviewMessage" query:"reviewMessage"`
+	ReviewId      int64    `thrift:"reviewId,20" form:"reviewId" json:"reviewId" query:"reviewId"`
+	ReviewTime    string   `thrift:"reviewTime,21" form:"reviewTime" json:"reviewTime" query:"reviewTime"`
 }
 
 func NewPicture() *Picture {
@@ -1154,6 +1158,22 @@ func (p *Picture) GetUser() (v *User) {
 	return p.User
 }
 
+func (p *Picture) GetReviewStatus() (v string) {
+	return p.ReviewStatus
+}
+
+func (p *Picture) GetReviewMessage() (v string) {
+	return p.ReviewMessage
+}
+
+func (p *Picture) GetReviewId() (v int64) {
+	return p.ReviewId
+}
+
+func (p *Picture) GetReviewTime() (v string) {
+	return p.ReviewTime
+}
+
 var fieldIDToName_Picture = map[int16]string{
 	1:  "id",
 	2:  "url",
@@ -1172,6 +1192,10 @@ var fieldIDToName_Picture = map[int16]string{
 	15: "isDelete",
 	16: "userId",
 	17: "user",
+	18: "reviewStatus",
+	19: "reviewMessage",
+	20: "reviewId",
+	21: "reviewTime",
 }
 
 func (p *Picture) IsSetUser() bool {
@@ -1327,6 +1351,38 @@ func (p *Picture) Read(iprot thrift.TProtocol) (err error) {
 		case 17:
 			if fieldTypeId == thrift.STRUCT {
 				if err = p.ReadField17(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 18:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField18(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 19:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField19(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 20:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField20(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 21:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField21(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -1557,6 +1613,50 @@ func (p *Picture) ReadField17(iprot thrift.TProtocol) error {
 	p.User = _field
 	return nil
 }
+func (p *Picture) ReadField18(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewStatus = _field
+	return nil
+}
+func (p *Picture) ReadField19(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewMessage = _field
+	return nil
+}
+func (p *Picture) ReadField20(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewId = _field
+	return nil
+}
+func (p *Picture) ReadField21(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewTime = _field
+	return nil
+}
 
 func (p *Picture) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -1630,6 +1730,22 @@ func (p *Picture) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField17(oprot); err != nil {
 			fieldId = 17
+			goto WriteFieldError
+		}
+		if err = p.writeField18(oprot); err != nil {
+			fieldId = 18
+			goto WriteFieldError
+		}
+		if err = p.writeField19(oprot); err != nil {
+			fieldId = 19
+			goto WriteFieldError
+		}
+		if err = p.writeField20(oprot); err != nil {
+			fieldId = 20
+			goto WriteFieldError
+		}
+		if err = p.writeField21(oprot); err != nil {
+			fieldId = 21
 			goto WriteFieldError
 		}
 	}
@@ -1929,6 +2045,70 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 17 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
+}
+func (p *Picture) writeField18(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("reviewStatus", thrift.STRING, 18); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ReviewStatus); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 end error: ", p), err)
+}
+func (p *Picture) writeField19(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("reviewMessage", thrift.STRING, 19); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ReviewMessage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 19 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 19 end error: ", p), err)
+}
+func (p *Picture) writeField20(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("reviewId", thrift.I64, 20); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ReviewId); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 20 end error: ", p), err)
+}
+func (p *Picture) writeField21(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("reviewTime", thrift.STRING, 21); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ReviewTime); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 21 end error: ", p), err)
 }
 
 func (p *Picture) String() string {

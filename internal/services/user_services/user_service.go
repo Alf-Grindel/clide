@@ -17,46 +17,46 @@ func NewUserService(ctx context.Context) *UserService {
 }
 
 // ObjToVo - 转换为脱敏对象
-func ObjToVo(current *db_user.User) *base.UserVo {
-	if current == nil {
+func ObjToVo(oldUser *db_user.User) *base.UserVo {
+	if oldUser == nil {
 		return nil
 	}
 	return &base.UserVo{
-		ID:          current.Id,
-		UserAccount: current.UserAccount,
-		UserAvatar:  current.UserAvatar,
-		UserProfile: current.UserProfile,
-		EditTime:    current.EditTime.Format(time.DateTime),
-		CreateTime:  current.CreateTime.Format(time.DateTime),
+		ID:          oldUser.Id,
+		UserAccount: oldUser.UserAccount,
+		UserAvatar:  oldUser.UserAvatar,
+		UserProfile: oldUser.UserProfile,
+		EditTime:    oldUser.EditTime.Format(time.DateTime),
+		CreateTime:  oldUser.CreateTime.Format(time.DateTime),
 	}
 }
 
 // ObjsToVos - 转换为脱敏列表
-func ObjsToVos(currents []*db_user.User) []*base.UserVo {
-	if currents == nil {
+func ObjsToVos(oldUsers []*db_user.User) []*base.UserVo {
+	if oldUsers == nil {
 		return nil
 	}
 	var res []*base.UserVo
-	for _, current := range currents {
-		res = append(res, ObjToVo(current))
+	for _, oldUser := range oldUsers {
+		res = append(res, ObjToVo(oldUser))
 	}
 	return res
 }
 
 // ObjToObj - 转化未为脱敏对象
-func ObjToObj(current *db_user.User) *base.User {
-	if current == nil {
+func ObjToObj(oldUser *db_user.User) *base.User {
+	if oldUser == nil {
 		return nil
 	}
 	return &base.User{
-		ID:          current.Id,
-		UserAccount: current.UserAccount,
-		UserAvatar:  current.UserAvatar,
-		UserProfile: current.UserProfile,
-		UserRole:    current.UserRole,
-		EditTime:    current.EditTime.Format(time.DateTime),
-		CreateTime:  current.CreateTime.Format(time.DateTime),
-		UpdateTime:  current.UpdateTime.Format(time.DateTime),
-		IsDelete:    constants.IsDeleteMap[current.IsDelete],
+		ID:          oldUser.Id,
+		UserAccount: oldUser.UserAccount,
+		UserAvatar:  oldUser.UserAvatar,
+		UserProfile: oldUser.UserProfile,
+		UserRole:    oldUser.UserRole,
+		EditTime:    oldUser.EditTime.Format(time.DateTime),
+		CreateTime:  oldUser.CreateTime.Format(time.DateTime),
+		UpdateTime:  oldUser.UpdateTime.Format(time.DateTime),
+		IsDelete:    constants.IsDeleteMap[oldUser.IsDelete],
 	}
 }

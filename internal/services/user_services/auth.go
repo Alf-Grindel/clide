@@ -4,6 +4,7 @@ import (
 	"github.com/Alf-Grindel/clide/internal/dal/db/db_user"
 	"github.com/Alf-Grindel/clide/internal/model/base"
 	"github.com/Alf-Grindel/clide/internal/model/clide/user"
+	"github.com/Alf-Grindel/clide/internal/services"
 	"github.com/Alf-Grindel/clide/pkg/constants"
 	"github.com/Alf-Grindel/clide/pkg/errno"
 	"github.com/Alf-Grindel/clide/pkg/utils"
@@ -21,15 +22,15 @@ import (
 //   - userVo: 脱敏用户信息
 //   - error: nil on success, non-nil on failure
 func (s *UserService) GetLoginUser(c *app.RequestContext) (*base.UserVo, error) {
-	userId, ok := c.Get("user_id")
-	if !ok {
-		return nil, errno.NotLoginErr
+	loginUser, err := services.GetLoginUserIdRole(c)
+	if err != nil {
+		return nil, err
 	}
-	current, err := db_user.QueryUserById(s.ctx, userId.(int64))
+	oldUser, err := db_user.QueryUserById(s.ctx, loginUser.Id)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToVo(current), nil
+	return ObjToVo(oldUser), nil
 }
 
 // UserLogout 用户登出
@@ -65,12 +66,12 @@ func (s *UserService) UserEdit(req *user.UserEditReq, c *app.RequestContext) (*b
 	if req.UserPassword == nil && req.UserAvatar == nil && req.UserProfile == nil {
 		return nil, errno.ParamErr.WithMessage("未更新数据")
 	}
-	userID, ok := c.Get("user_id")
-	if !ok {
-		return nil, errno.NotLoginErr
+	loginUser, err := services.GetLoginUserIdRole(c)
+	if err != nil {
+		return nil, err
 	}
 	updates := &db_user.User{
-		Id:          userID.(int64),
+		Id:          loginUser.Id,
 		UserAvatar:  req.GetUserAvatar(),
 		UserProfile: req.GetUserProfile(),
 		EditTime:    time.Now(),
@@ -83,15 +84,15 @@ func (s *UserService) UserEdit(req *user.UserEditReq, c *app.RequestContext) (*b
 		}
 		updates.UserPassword = password
 	}
-	err := db_user.UpdateUser(s.ctx, updates)
+	err = db_user.UpdateUser(s.ctx, updates)
 	if err != nil {
 		return nil, errno.OperationErr.WithMessage("更新失败")
 	}
-	current, err := db_user.QueryUserById(s.ctx, userID.(int64))
+	oldUser, err := db_user.QueryUserById(s.ctx, loginUser.Id)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToVo(current), nil
+	return ObjToVo(oldUser), nil
 }
 
 // UserSearch 分页搜素用户
@@ -121,9 +122,9 @@ func (s *UserService) UserSearch(req *user.UserSearchReq) (int64, []*base.UserVo
 		UserAccount: req.GetUserAccount(),
 		UserProfile: req.GetUserProfile(),
 	}
-	total, currents, err := db_user.QueryUser(s.ctx, search, currentPage, pageSize)
+	total, oldUsers, err := db_user.QueryUser(s.ctx, search, currentPage, pageSize)
 	if err != nil {
 		return 0, nil, errno.NotFoundErr
 	}
-	return total, ObjsToVos(currents), nil
+	return total, ObjsToVos(oldUsers), nil
 }

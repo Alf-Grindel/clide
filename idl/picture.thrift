@@ -99,13 +99,16 @@ struct QueryPictureReq {
     11: optional string pic_format
     12: optional string search_text
     13: optional i64 user_id
-    14: i64 current_page
-    15: i64 page_size
+    14: optional string review_status
+    15: optional string review_message
+    16: optional i64 review_id
+    17: i64 current_page
+    18: i64 page_size
 } 
 
 struct QueryPictureResp {
     1: i64 total
-    2: list<base.PictureVo> pictures
+    2: list<base.Picture> pictures
     255: base.BaseResp base
 }
 
@@ -117,6 +120,17 @@ struct QueryPictureByIdResp {
     1: base.Picture picture
     255: base.BaseResp base
 }
+
+struct ReviewPictureReq {
+    1: i64 id
+    2: string review_status
+    3: string review_message
+}
+
+struct ReviewPictureResp {
+    255: base.BaseResp base
+}
+
 
 service PictureService {
 
@@ -135,6 +149,7 @@ service PictureService {
     UpdatePictureResp UpdatePicture(1: UpdatePictureReq req)
     QueryPictureResp QueryPicture(1: QueryPictureReq req)
     QueryPictureByIdResp QueryPictureById(1: QueryPictureByIdReq req)
+    ReviewPictureResp ReviewPicture(1: ReviewPictureReq req)
 }
 
 

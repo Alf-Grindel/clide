@@ -1,85 +1,18 @@
 package picture_services
 
 import (
-	"fmt"
 	"github.com/Alf-Grindel/clide/internal/dal/db/db_picture"
 	"github.com/Alf-Grindel/clide/internal/dal/db/db_user"
 	"github.com/Alf-Grindel/clide/internal/model/base"
 	"github.com/Alf-Grindel/clide/internal/model/clide/picture"
-	tencentCos "github.com/Alf-Grindel/clide/internal/pkg/cos_client"
+	"github.com/Alf-Grindel/clide/internal/services"
 	"github.com/Alf-Grindel/clide/pkg/constants"
 	"github.com/Alf-Grindel/clide/pkg/errno"
 	"github.com/bytedance/sonic"
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"mime/multipart"
-	"strconv"
 	"time"
 )
-
-// UploadPicture 上传图片
-// params:
-//   - req: 图片上传请求体
-//     optional: pictureId
-//   - file: 图片
-//   - c: 请求上下文
-//
-// returns:
-//   - pictureId
-//   - error: nil on success, non-nil on failure
-func (s *PictureService) UploadPicture(req *picture.UploadPictureReq, file *multipart.FileHeader, c *app.RequestContext) (int64, error) {
-	if req == nil {
-		return 0, errno.ParamErr
-	}
-	// 判断是新增还是更新
-	var id int64
-	if req.ID != nil {
-		id = req.GetID()
-		// 如果是更新，判断图片是否存在
-		if _, err := db_picture.QueryPictureById(s.ctx, id); err != nil {
-			return 0, errno.NotFoundErr.WithMessage("图片不存在")
-		}
-	}
-	// 上传图片，获取图片信息
-	// 根据用户id划分目录
-	userId, ok := c.Get("user_id")
-	if !ok {
-		return 0, errno.NotLoginErr
-	}
-	subfix := strconv.FormatInt(userId.(int64), 10)
-	uploadPathPrefix := fmt.Sprintf(constants.PubicSpace, subfix)
-	client := tencentCos.NewTencentClient()
-	fileManager := tencentCos.NewTencentFile(s.ctx, client)
-	fileResult, err := fileManager.UploadPicture(file, uploadPathPrefix)
-	if err != nil {
-		return 0, err
-	}
-	current := &db_picture.Picture{
-		Url:       fileResult.Url,
-		PicName:   fileResult.PicName,
-		PicSize:   fileResult.PicSize,
-		PicWidth:  fileResult.PicHeight,
-		PicHeight: fileResult.PicHeight,
-		PicScale:  fileResult.PicScale,
-		PicFormat: fileResult.PicFormat,
-		UserId:    userId.(int64),
-	}
-	// 如果是更新
-	if id != 0 {
-		current.Id = id
-		current.EditTime = time.Now()
-		err = db_picture.UpdatePicture(s.ctx, current)
-		if err != nil {
-			return 0, errno.SystemErr
-		}
-	} else {
-		id, err = db_picture.CreatePicture(s.ctx, current)
-		if err != nil {
-			return 0, errno.SystemErr
-		}
-	}
-	return id, nil
-}
 
 // DeletePicture - 删除图片
 // params:
@@ -106,17 +39,18 @@ func (s *PictureService) DeletePicture(req *picture.DeletePictureReq) error {
 //   - req: 更新图片请求体
 //     required: pictureId
 //     optional: picName, introduction, category, tags
+//   - c: 请求上下文
 //
 // returns:
 //   - error: nil on success, non-nil on failure
-func (s *PictureService) UpdatePicture(req *picture.UpdatePictureReq) error {
+func (s *PictureService) UpdatePicture(req *picture.UpdatePictureReq, c *app.RequestContext) error {
 	if req == nil {
 		return errno.ParamErr
 	}
 	if req.PicName == nil && req.Introduction == nil && req.Category == nil && req.Tags == nil {
 		return errno.ParamErr.WithMessage("未有更新数据")
 	}
-	current, err := db_picture.QueryPictureById(s.ctx, req.ID)
+	_, err := db_picture.QueryPictureById(s.ctx, req.ID)
 	if err != nil {
 		return errno.NotFoundErr
 	}
@@ -137,7 +71,12 @@ func (s *PictureService) UpdatePicture(req *picture.UpdatePictureReq) error {
 		}
 		updates.Tags = string(b)
 	}
-	if err = db_picture.UpdatePicture(s.ctx, current); err != nil {
+	loginUser, err := services.GetLoginUserIdRole(c)
+	if err != nil {
+		return err
+	}
+	fillReviewParams(updates, loginUser)
+	if err = db_picture.UpdatePicture(s.ctx, updates); err != nil {
 		return errno.OperationErr.WithMessage("更新失败")
 	}
 	return nil
@@ -152,9 +91,9 @@ func (s *PictureService) UpdatePicture(req *picture.UpdatePictureReq) error {
 //
 // returns:
 //   - total: total number of matched users
-//   - picturesVos: 图片脱敏信息列表
+//   - pictures: 图片未脱敏信息列表
 //   - error: nil on success, non-nil on failure
-func (s *PictureService) QueryPicture(req *picture.QueryPictureReq) (int64, []*base.PictureVo, error) {
+func (s *PictureService) QueryPicture(req *picture.QueryPictureReq) (int64, []*base.Picture, error) {
 	if req == nil {
 		return 0, nil, errno.ParamErr
 	}
@@ -167,34 +106,41 @@ func (s *PictureService) QueryPicture(req *picture.QueryPictureReq) (int64, []*b
 		pageSize = constants.PageSize
 	}
 
-	current := &db_picture.Picture{
-		Id:           req.GetID(),
-		PicName:      req.GetPicName(),
-		Introduction: req.GetIntroduction(),
-		Category:     req.GetCategory(),
-		PicSize:      req.GetPicSize(),
-		PicWidth:     req.GetPicWidth(),
-		PicHeight:    req.GetPicHeight(),
-		PicScale:     req.GetPicScale(),
-		PicFormat:    req.GetPicFormat(),
-		UserId:       req.GetUserID(),
+	search := &db_picture.Picture{
+		Id:            req.GetID(),
+		PicName:       req.GetPicName(),
+		Introduction:  req.GetIntroduction(),
+		Category:      req.GetCategory(),
+		PicSize:       req.GetPicSize(),
+		PicWidth:      req.GetPicWidth(),
+		PicHeight:     req.GetPicHeight(),
+		PicScale:      req.GetPicScale(),
+		PicFormat:     req.GetPicFormat(),
+		UserId:        req.GetUserID(),
+		ReviewMessage: req.GetReviewMessage(),
+		ReviewId:      req.GetReviewID(),
 	}
+	var tags []string
 	if req.Tags != nil {
-		b, err := sonic.Marshal(req.Tags)
-		if err != nil {
-			hlog.Error("picture_services - PictureSearch: marshal tags failed, %s\n", err)
-			return 0, nil, errno.SystemErr
-		}
-		current.Tags = string(b)
+		tags = req.GetTags()
 	}
-
+	if req.ReviewStatus != nil {
+		status, exist := constants.ReviewPictureMap[req.GetReviewStatus()]
+		if exist {
+			search.ReviewStatus = status
+		} else {
+			return 0, nil, errno.ParamErr
+		}
+	} else {
+		search.ReviewStatus = -1
+	}
 	searchText := req.GetSearchText()
 
-	total, currents, err := db_picture.QueryPicture(s.ctx, current, searchText, currentPage, pageSize)
+	total, oldPictures, err := db_picture.QueryPicture(s.ctx, search, searchText, tags, currentPage, pageSize)
 	if err != nil {
 		return 0, nil, errno.NotFoundErr
 	}
-	return total, ObjsToVos(s.ctx, currents), nil
+	return total, ObjsToObjs(s.ctx, oldPictures), nil
 }
 
 // QueryPictureById - 根据id获取图片
@@ -209,13 +155,53 @@ func (s *PictureService) QueryPictureById(req *picture.QueryPictureByIdReq) (*ba
 	if req == nil {
 		return nil, errno.ParamErr
 	}
-	current, err := db_picture.QueryPictureById(s.ctx, req.GetID())
+	oldPicture, err := db_picture.QueryPictureById(s.ctx, req.GetID())
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	user, err := db_user.QueryUserById(s.ctx, current.UserId)
+	oldUser, err := db_user.QueryUserById(s.ctx, oldPicture.UserId)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToObj(current, user), nil
+	return ObjToObj(oldPicture, oldUser), nil
+}
+
+// DoPictureReview - 图片审核
+// params:
+//   - req: 图片审核请求体
+//     required: pictureID, reviewStatus, reviewMessage
+//   - c: 请求上下文
+//
+// returns:
+//   - error: nil on success, non-nil on failure
+func (s *PictureService) DoPictureReview(req *picture.ReviewPictureReq, c *app.RequestContext) error {
+	if req == nil {
+		return errno.ParamErr
+	}
+	status, ok := constants.ReviewPictureMap[req.ReviewStatus]
+	if !ok || req.ID == 0 || req.ReviewMessage == "" {
+		return errno.ParamErr
+	}
+	userId, ok := c.Get("user_id")
+	if !ok {
+		return errno.NotLoginErr
+	}
+	oldPicture, err := db_picture.QueryPictureById(s.ctx, req.ID)
+	if err != nil {
+		return errno.NotFoundErr
+	}
+	if oldPicture.ReviewStatus == status {
+		return errno.OperationErr.WithMessage("请勿重复审核")
+	}
+	updates := &db_picture.Picture{
+		Id:            req.ID,
+		ReviewStatus:  status,
+		ReviewMessage: req.ReviewMessage,
+		ReviewId:      userId.(int64),
+		ReviewTime:    time.Now(),
+	}
+	if err = db_picture.UpdatePicture(s.ctx, updates); err != nil {
+		return errno.OperationErr
+	}
+	return nil
 }

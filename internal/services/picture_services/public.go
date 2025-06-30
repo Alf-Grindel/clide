@@ -7,8 +7,6 @@ import (
 	"github.com/Alf-Grindel/clide/internal/model/clide/picture"
 	"github.com/Alf-Grindel/clide/pkg/constants"
 	"github.com/Alf-Grindel/clide/pkg/errno"
-	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
 )
 
 // PictureSearch - 图片搜索[分页]
@@ -32,7 +30,7 @@ func (s *PictureService) PictureSearch(req *picture.PictureSearchReq) (int64, []
 	}
 	pageSize := req.PageSize
 
-	current := &db_picture.Picture{
+	search := &db_picture.Picture{
 		Id:           req.GetID(),
 		PicName:      req.GetPicName(),
 		Introduction: req.GetIntroduction(),
@@ -43,23 +41,19 @@ func (s *PictureService) PictureSearch(req *picture.PictureSearchReq) (int64, []
 		PicScale:     req.GetPicScale(),
 		PicFormat:    req.GetPicFormat(),
 		UserId:       req.GetUserID(),
+		ReviewStatus: constants.ReviewPictureMap["通过"],
 	}
+	var tags []string
 	if req.Tags != nil {
-		b, err := sonic.Marshal(req.Tags)
-		if err != nil {
-			hlog.Error("picture_services - PictureSearch: marshal tags failed, %s\n", err)
-			return 0, nil, errno.SystemErr
-		}
-		current.Tags = string(b)
+		tags = req.GetTags()
 	}
-
 	searchText := req.GetSearchText()
 
-	total, currents, err := db_picture.QueryPicture(s.ctx, current, searchText, currentPage, pageSize)
+	total, oldPictures, err := db_picture.QueryPicture(s.ctx, search, searchText, tags, currentPage, pageSize)
 	if err != nil {
 		return 0, nil, errno.NotFoundErr
 	}
-	return total, ObjsToVos(s.ctx, currents), nil
+	return total, ObjsToVos(s.ctx, oldPictures), nil
 }
 
 // PictureGetById - 根据id获取图片
@@ -74,13 +68,13 @@ func (s *PictureService) PictureGetById(req *picture.PictureGetByIdReq) (*base.P
 	if req == nil {
 		return nil, errno.ParamErr
 	}
-	current, err := db_picture.QueryPictureById(s.ctx, req.GetID())
+	oldPicture, err := db_picture.QueryPictureById(s.ctx, req.GetID())
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	user, err := db_user.QueryUserById(s.ctx, current.UserId)
+	oldUser, err := db_user.QueryUserById(s.ctx, oldPicture.UserId)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToVo(current, user), nil
+	return ObjToVo(oldPicture, oldUser), nil
 }

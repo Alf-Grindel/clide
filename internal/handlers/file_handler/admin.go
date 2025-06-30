@@ -8,32 +8,6 @@ import (
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
-func UploadPicture(ctx context.Context, c *app.RequestContext) {
-	fileHeader, err := c.FormFile("file")
-	if err != nil {
-		resp := errno.BuildBaseResp(err)
-		c.JSON(200, resp)
-		return
-	}
-	var req picture.UploadPictureReq
-	if err = c.BindAndValidate(&req); err != nil {
-		resp := errno.BuildBaseResp(err)
-		c.JSON(200, resp)
-		return
-	}
-	id, err := picture_services.NewPictureService(ctx).UploadPicture(&req, fileHeader, c)
-	if err != nil {
-		resp := errno.BuildBaseResp(err)
-		c.JSON(200, resp)
-		return
-	}
-	resp := &picture.UploadPictureResp{
-		ID:   id,
-		Base: errno.BuildBaseResp(errno.Success),
-	}
-	c.JSON(200, resp)
-}
-
 func DeletePicture(ctx context.Context, c *app.RequestContext) {
 	var req picture.DeletePictureReq
 	if err := c.BindAndValidate(&req); err != nil {
@@ -60,13 +34,13 @@ func UpdatePicture(ctx context.Context, c *app.RequestContext) {
 		c.JSON(200, resp)
 		return
 	}
-	if err := picture_services.NewPictureService(ctx).UpdatePicture(&req); err != nil {
+	if err := picture_services.NewPictureService(ctx).UpdatePicture(&req, c); err != nil {
 		resp := errno.BuildBaseResp(err)
 		c.JSON(200, resp)
 		return
 	}
 
-	resp := &picture.UploadPictureResp{
+	resp := &picture.UpdatePictureResp{
 		Base: errno.BuildBaseResp(errno.Success),
 	}
 	c.JSON(200, resp)
@@ -111,6 +85,24 @@ func QueryPictureById(ctx context.Context, c *app.RequestContext) {
 	resp := &picture.QueryPictureByIdResp{
 		Picture: current,
 		Base:    errno.BuildBaseResp(errno.Success),
+	}
+	c.JSON(200, resp)
+}
+
+func ReviewPicture(ctx context.Context, c *app.RequestContext) {
+	var req picture.ReviewPictureReq
+	if err := c.BindAndValidate(&req); err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	if err := picture_services.NewPictureService(ctx).DoPictureReview(&req, c); err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	resp := &picture.ReviewPictureResp{
+		Base: errno.BuildBaseResp(errno.Success),
 	}
 	c.JSON(200, resp)
 }

@@ -56,25 +56,25 @@ func (s *UserService) UserLogin(req *user.UserLoginReq, c *app.RequestContext) (
 		return nil, errno.ParamErr
 	}
 	account := req.UserAccount
-	current, err := db_user.QueryUserByAccount(s.ctx, account)
+	oldUser, err := db_user.QueryUserByAccount(s.ctx, account)
 	if err != nil {
 		return nil, errno.ParamErr.WithMessage("用户不存在或密码错误")
 	}
 	password := req.UserPassword
-	if !utils.ComparePassword(current.UserPassword, password) {
+	if !utils.ComparePassword(oldUser.UserPassword, password) {
 		return nil, errno.ParamErr.WithMessage("用户不存在或密码错误")
 	}
-	currentByte, err := sonic.Marshal(&current)
+	oldUserByte, err := sonic.Marshal(&oldUser)
 	if err != nil {
 		hlog.Errorf("user_services - UserLogin: marshal user failed, %s\n", err)
 		return nil, errno.OperationErr.WithMessage("登录失败")
 	}
 	session := sessions.Default(c)
-	session.Set(constants.UserLoginState, currentByte)
+	session.Set(constants.UserLoginState, oldUserByte)
 	err = session.Save()
 	if err != nil {
 		hlog.Errorf("user_services - UserLogin: save session failed, %s\n", err)
 		return nil, errno.OperationErr.WithMessage("登录失败")
 	}
-	return ObjToVo(current), nil
+	return ObjToVo(oldUser), nil
 }

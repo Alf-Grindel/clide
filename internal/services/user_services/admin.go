@@ -29,7 +29,7 @@ func (s *UserService) AddUser(req *user.AddUserReq) (int64, error) {
 		hlog.Errorf("user_services - AddUser: generate password failed, %s\n", err)
 		return 0, errno.OperationErr
 	}
-	current := &db_user.User{
+	addUser := &db_user.User{
 		UserAccount:  req.UserAccount,
 		UserPassword: password,
 		UserAvatar:   req.GetUserAvatar(),
@@ -37,7 +37,7 @@ func (s *UserService) AddUser(req *user.AddUserReq) (int64, error) {
 		UserRole:     req.GetUserRole(),
 	}
 
-	id, err := db_user.AddUser(s.ctx, current)
+	id, err := db_user.AddUser(s.ctx, addUser)
 	if err != nil {
 		return 0, errno.OperationErr.WithMessage("添加用户失败")
 	}
@@ -96,11 +96,11 @@ func (s *UserService) UpdateUser(req *user.UpdateUserReq) (*base.UserVo, error) 
 	if err != nil {
 		return nil, errno.OperationErr.WithMessage("更新失败")
 	}
-	current, err := db_user.QueryUserById(s.ctx, req.ID)
+	oldUser, err := db_user.QueryUserById(s.ctx, req.ID)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToVo(current), nil
+	return ObjToVo(oldUser), nil
 }
 
 // QueryUser 分页查询用户
@@ -131,11 +131,11 @@ func (s *UserService) QueryUser(req *user.QueryUserReq) (int64, []*base.UserVo, 
 		UserProfile: req.GetUserProfile(),
 		UserRole:    req.GetUserRole(),
 	}
-	total, users, err := db_user.QueryUser(s.ctx, search, currentPage, pageSize)
+	total, oldUsers, err := db_user.QueryUser(s.ctx, search, currentPage, pageSize)
 	if err != nil {
 		return 0, nil, errno.NotFoundErr
 	}
-	return total, ObjsToVos(users), nil
+	return total, ObjsToVos(oldUsers), nil
 }
 
 // GetUserById 根据id 获取用户
@@ -150,9 +150,9 @@ func (s *UserService) GetUserById(req *user.GetUserReq) (*base.User, error) {
 	if req == nil {
 		return nil, errno.ParamErr
 	}
-	current, err := db_user.QueryUserById(s.ctx, req.ID)
+	oldUser, err := db_user.QueryUserById(s.ctx, req.ID)
 	if err != nil {
 		return nil, errno.NotFoundErr
 	}
-	return ObjToObj(current), nil
+	return ObjToObj(oldUser), nil
 }

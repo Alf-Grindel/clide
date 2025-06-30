@@ -3515,20 +3515,23 @@ func (p *UpdatePictureResp) String() string {
 }
 
 type QueryPictureReq struct {
-	ID           *int64   `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
-	PicName      *string  `thrift:"pic_name,2,optional" form:"pic_name" json:"pic_name,omitempty" query:"pic_name"`
-	Introduction *string  `thrift:"introduction,3,optional" form:"introduction" json:"introduction,omitempty" query:"introduction" vd:"$ == null || len($) < 800"`
-	Category     *string  `thrift:"category,4,optional" form:"category" json:"category,omitempty" query:"category"`
-	Tags         []string `thrift:"tags,5,optional" form:"tags" json:"tags,omitempty" query:"tags"`
-	PicSize      *int64   `thrift:"pic_size,6,optional" form:"pic_size" json:"pic_size,omitempty" query:"pic_size"`
-	PicWidth     *int32   `thrift:"pic_width,8,optional" form:"pic_width" json:"pic_width,omitempty" query:"pic_width"`
-	PicHeight    *int32   `thrift:"pic_height,9,optional" form:"pic_height" json:"pic_height,omitempty" query:"pic_height"`
-	PicScale     *float64 `thrift:"pic_scale,10,optional" form:"pic_scale" json:"pic_scale,omitempty" query:"pic_scale"`
-	PicFormat    *string  `thrift:"pic_format,11,optional" form:"pic_format" json:"pic_format,omitempty" query:"pic_format"`
-	SearchText   *string  `thrift:"search_text,12,optional" form:"search_text" json:"search_text,omitempty" query:"search_text"`
-	UserID       *int64   `thrift:"user_id,13,optional" form:"user_id" json:"user_id,omitempty" query:"user_id"`
-	CurrentPage  int64    `thrift:"current_page,14" form:"current_page" json:"current_page" query:"current_page"`
-	PageSize     int64    `thrift:"page_size,15" form:"page_size" json:"page_size" query:"page_size"`
+	ID            *int64   `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	PicName       *string  `thrift:"pic_name,2,optional" form:"pic_name" json:"pic_name,omitempty" query:"pic_name"`
+	Introduction  *string  `thrift:"introduction,3,optional" form:"introduction" json:"introduction,omitempty" query:"introduction" vd:"$ == null || len($) < 800"`
+	Category      *string  `thrift:"category,4,optional" form:"category" json:"category,omitempty" query:"category"`
+	Tags          []string `thrift:"tags,5,optional" form:"tags" json:"tags,omitempty" query:"tags"`
+	PicSize       *int64   `thrift:"pic_size,6,optional" form:"pic_size" json:"pic_size,omitempty" query:"pic_size"`
+	PicWidth      *int32   `thrift:"pic_width,8,optional" form:"pic_width" json:"pic_width,omitempty" query:"pic_width"`
+	PicHeight     *int32   `thrift:"pic_height,9,optional" form:"pic_height" json:"pic_height,omitempty" query:"pic_height"`
+	PicScale      *float64 `thrift:"pic_scale,10,optional" form:"pic_scale" json:"pic_scale,omitempty" query:"pic_scale"`
+	PicFormat     *string  `thrift:"pic_format,11,optional" form:"pic_format" json:"pic_format,omitempty" query:"pic_format"`
+	SearchText    *string  `thrift:"search_text,12,optional" form:"search_text" json:"search_text,omitempty" query:"search_text"`
+	UserID        *int64   `thrift:"user_id,13,optional" form:"user_id" json:"user_id,omitempty" query:"user_id"`
+	ReviewStatus  *string  `thrift:"review_status,14,optional" form:"review_status" json:"review_status,omitempty" query:"review_status"`
+	ReviewMessage *string  `thrift:"review_message,15,optional" form:"review_message" json:"review_message,omitempty" query:"review_message"`
+	ReviewID      *int64   `thrift:"review_id,16,optional" form:"review_id" json:"review_id,omitempty" query:"review_id"`
+	CurrentPage   int64    `thrift:"current_page,17" form:"current_page" json:"current_page" query:"current_page"`
+	PageSize      int64    `thrift:"page_size,18" form:"page_size" json:"page_size" query:"page_size"`
 }
 
 func NewQueryPictureReq() *QueryPictureReq {
@@ -3646,6 +3649,33 @@ func (p *QueryPictureReq) GetUserID() (v int64) {
 	return *p.UserID
 }
 
+var QueryPictureReq_ReviewStatus_DEFAULT string
+
+func (p *QueryPictureReq) GetReviewStatus() (v string) {
+	if !p.IsSetReviewStatus() {
+		return QueryPictureReq_ReviewStatus_DEFAULT
+	}
+	return *p.ReviewStatus
+}
+
+var QueryPictureReq_ReviewMessage_DEFAULT string
+
+func (p *QueryPictureReq) GetReviewMessage() (v string) {
+	if !p.IsSetReviewMessage() {
+		return QueryPictureReq_ReviewMessage_DEFAULT
+	}
+	return *p.ReviewMessage
+}
+
+var QueryPictureReq_ReviewID_DEFAULT int64
+
+func (p *QueryPictureReq) GetReviewID() (v int64) {
+	if !p.IsSetReviewID() {
+		return QueryPictureReq_ReviewID_DEFAULT
+	}
+	return *p.ReviewID
+}
+
 func (p *QueryPictureReq) GetCurrentPage() (v int64) {
 	return p.CurrentPage
 }
@@ -3667,8 +3697,11 @@ var fieldIDToName_QueryPictureReq = map[int16]string{
 	11: "pic_format",
 	12: "search_text",
 	13: "user_id",
-	14: "current_page",
-	15: "page_size",
+	14: "review_status",
+	15: "review_message",
+	16: "review_id",
+	17: "current_page",
+	18: "page_size",
 }
 
 func (p *QueryPictureReq) IsSetID() bool {
@@ -3717,6 +3750,18 @@ func (p *QueryPictureReq) IsSetSearchText() bool {
 
 func (p *QueryPictureReq) IsSetUserID() bool {
 	return p.UserID != nil
+}
+
+func (p *QueryPictureReq) IsSetReviewStatus() bool {
+	return p.ReviewStatus != nil
+}
+
+func (p *QueryPictureReq) IsSetReviewMessage() bool {
+	return p.ReviewMessage != nil
+}
+
+func (p *QueryPictureReq) IsSetReviewID() bool {
+	return p.ReviewID != nil
 }
 
 func (p *QueryPictureReq) Read(iprot thrift.TProtocol) (err error) {
@@ -3834,7 +3879,7 @@ func (p *QueryPictureReq) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 14:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField14(iprot); err != nil {
 					goto ReadFieldError
 				}
@@ -3842,8 +3887,32 @@ func (p *QueryPictureReq) Read(iprot thrift.TProtocol) (err error) {
 				goto SkipFieldError
 			}
 		case 15:
-			if fieldTypeId == thrift.I64 {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField15(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 16:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField16(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 17:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField17(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 18:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField18(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -4024,6 +4093,39 @@ func (p *QueryPictureReq) ReadField13(iprot thrift.TProtocol) error {
 }
 func (p *QueryPictureReq) ReadField14(iprot thrift.TProtocol) error {
 
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.ReviewStatus = _field
+	return nil
+}
+func (p *QueryPictureReq) ReadField15(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.ReviewMessage = _field
+	return nil
+}
+func (p *QueryPictureReq) ReadField16(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.ReviewID = _field
+	return nil
+}
+func (p *QueryPictureReq) ReadField17(iprot thrift.TProtocol) error {
+
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
 		return err
@@ -4033,7 +4135,7 @@ func (p *QueryPictureReq) ReadField14(iprot thrift.TProtocol) error {
 	p.CurrentPage = _field
 	return nil
 }
-func (p *QueryPictureReq) ReadField15(iprot thrift.TProtocol) error {
+func (p *QueryPictureReq) ReadField18(iprot thrift.TProtocol) error {
 
 	var _field int64
 	if v, err := iprot.ReadI64(); err != nil {
@@ -4105,6 +4207,18 @@ func (p *QueryPictureReq) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField15(oprot); err != nil {
 			fieldId = 15
+			goto WriteFieldError
+		}
+		if err = p.writeField16(oprot); err != nil {
+			fieldId = 16
+			goto WriteFieldError
+		}
+		if err = p.writeField17(oprot); err != nil {
+			fieldId = 17
+			goto WriteFieldError
+		}
+		if err = p.writeField18(oprot); err != nil {
+			fieldId = 18
 			goto WriteFieldError
 		}
 	}
@@ -4350,7 +4464,61 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 13 end error: ", p), err)
 }
 func (p *QueryPictureReq) writeField14(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("current_page", thrift.I64, 14); err != nil {
+	if p.IsSetReviewStatus() {
+		if err = oprot.WriteFieldBegin("review_status", thrift.STRING, 14); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ReviewStatus); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+}
+func (p *QueryPictureReq) writeField15(oprot thrift.TProtocol) (err error) {
+	if p.IsSetReviewMessage() {
+		if err = oprot.WriteFieldBegin("review_message", thrift.STRING, 15); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.ReviewMessage); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
+}
+func (p *QueryPictureReq) writeField16(oprot thrift.TProtocol) (err error) {
+	if p.IsSetReviewID() {
+		if err = oprot.WriteFieldBegin("review_id", thrift.I64, 16); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.ReviewID); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 16 end error: ", p), err)
+}
+func (p *QueryPictureReq) writeField17(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("current_page", thrift.I64, 17); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteI64(p.CurrentPage); err != nil {
@@ -4361,12 +4529,12 @@ func (p *QueryPictureReq) writeField14(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 14 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 14 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 17 end error: ", p), err)
 }
-func (p *QueryPictureReq) writeField15(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 15); err != nil {
+func (p *QueryPictureReq) writeField18(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("page_size", thrift.I64, 18); err != nil {
 		goto WriteFieldBeginError
 	}
 	if err := oprot.WriteI64(p.PageSize); err != nil {
@@ -4377,9 +4545,9 @@ func (p *QueryPictureReq) writeField15(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 15 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 15 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 18 end error: ", p), err)
 }
 
 func (p *QueryPictureReq) String() string {
@@ -4391,9 +4559,9 @@ func (p *QueryPictureReq) String() string {
 }
 
 type QueryPictureResp struct {
-	Total    int64             `thrift:"total,1" form:"total" json:"total" query:"total"`
-	Pictures []*base.PictureVo `thrift:"pictures,2" form:"pictures" json:"pictures" query:"pictures"`
-	Base     *base.BaseResp    `thrift:"base,255" form:"base" json:"base" query:"base"`
+	Total    int64           `thrift:"total,1" form:"total" json:"total" query:"total"`
+	Pictures []*base.Picture `thrift:"pictures,2" form:"pictures" json:"pictures" query:"pictures"`
+	Base     *base.BaseResp  `thrift:"base,255" form:"base" json:"base" query:"base"`
 }
 
 func NewQueryPictureResp() *QueryPictureResp {
@@ -4407,7 +4575,7 @@ func (p *QueryPictureResp) GetTotal() (v int64) {
 	return p.Total
 }
 
-func (p *QueryPictureResp) GetPictures() (v []*base.PictureVo) {
+func (p *QueryPictureResp) GetPictures() (v []*base.Picture) {
 	return p.Pictures
 }
 
@@ -4517,8 +4685,8 @@ func (p *QueryPictureResp) ReadField2(iprot thrift.TProtocol) error {
 	if err != nil {
 		return err
 	}
-	_field := make([]*base.PictureVo, 0, size)
-	values := make([]base.PictureVo, size)
+	_field := make([]*base.Picture, 0, size)
+	values := make([]base.Picture, size)
 	for i := 0; i < size; i++ {
 		_elem := &values[i]
 		_elem.InitDefault()
@@ -4980,9 +5148,383 @@ func (p *QueryPictureByIdResp) String() string {
 
 }
 
+type ReviewPictureReq struct {
+	ID            int64  `thrift:"id,1" form:"id" json:"id" query:"id"`
+	ReviewStatus  string `thrift:"review_status,2" form:"review_status" json:"review_status" query:"review_status"`
+	ReviewMessage string `thrift:"review_message,3" form:"review_message" json:"review_message" query:"review_message"`
+}
+
+func NewReviewPictureReq() *ReviewPictureReq {
+	return &ReviewPictureReq{}
+}
+
+func (p *ReviewPictureReq) InitDefault() {
+}
+
+func (p *ReviewPictureReq) GetID() (v int64) {
+	return p.ID
+}
+
+func (p *ReviewPictureReq) GetReviewStatus() (v string) {
+	return p.ReviewStatus
+}
+
+func (p *ReviewPictureReq) GetReviewMessage() (v string) {
+	return p.ReviewMessage
+}
+
+var fieldIDToName_ReviewPictureReq = map[int16]string{
+	1: "id",
+	2: "review_status",
+	3: "review_message",
+}
+
+func (p *ReviewPictureReq) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ReviewPictureReq[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ReviewPictureReq) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ID = _field
+	return nil
+}
+func (p *ReviewPictureReq) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewStatus = _field
+	return nil
+}
+func (p *ReviewPictureReq) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.ReviewMessage = _field
+	return nil
+}
+
+func (p *ReviewPictureReq) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReviewPictureReq"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ReviewPictureReq) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("id", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.ID); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *ReviewPictureReq) writeField2(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("review_status", thrift.STRING, 2); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ReviewStatus); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+func (p *ReviewPictureReq) writeField3(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("review_message", thrift.STRING, 3); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.ReviewMessage); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *ReviewPictureReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReviewPictureReq(%+v)", *p)
+
+}
+
+type ReviewPictureResp struct {
+	Base *base.BaseResp `thrift:"base,255" form:"base" json:"base" query:"base"`
+}
+
+func NewReviewPictureResp() *ReviewPictureResp {
+	return &ReviewPictureResp{}
+}
+
+func (p *ReviewPictureResp) InitDefault() {
+}
+
+var ReviewPictureResp_Base_DEFAULT *base.BaseResp
+
+func (p *ReviewPictureResp) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return ReviewPictureResp_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var fieldIDToName_ReviewPictureResp = map[int16]string{
+	255: "base",
+}
+
+func (p *ReviewPictureResp) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *ReviewPictureResp) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_ReviewPictureResp[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *ReviewPictureResp) ReadField255(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+
+func (p *ReviewPictureResp) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReviewPictureResp"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *ReviewPictureResp) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *ReviewPictureResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("ReviewPictureResp(%+v)", *p)
+
+}
+
 type PictureService interface {
 	//# public
-	ListPictureTagCategory(ctx context.Context, req *PictureTagCategoryReq) (r *PictureTagCategoryResp, err error)
+	PictureListTagCategory(ctx context.Context, req *PictureTagCategoryReq) (r *PictureTagCategoryResp, err error)
 
 	PictureSearch(ctx context.Context, req *PictureSearchReq) (r *PictureSearchResp, err error)
 
@@ -4999,6 +5541,8 @@ type PictureService interface {
 	QueryPicture(ctx context.Context, req *QueryPictureReq) (r *QueryPictureResp, err error)
 
 	QueryPictureById(ctx context.Context, req *QueryPictureByIdReq) (r *QueryPictureByIdResp, err error)
+
+	ReviewPicture(ctx context.Context, req *ReviewPictureReq) (r *ReviewPictureResp, err error)
 }
 
 type PictureServiceClient struct {
@@ -5027,11 +5571,11 @@ func (p *PictureServiceClient) Client_() thrift.TClient {
 	return p.c
 }
 
-func (p *PictureServiceClient) ListPictureTagCategory(ctx context.Context, req *PictureTagCategoryReq) (r *PictureTagCategoryResp, err error) {
-	var _args PictureServiceListPictureTagCategoryArgs
+func (p *PictureServiceClient) PictureListTagCategory(ctx context.Context, req *PictureTagCategoryReq) (r *PictureTagCategoryResp, err error) {
+	var _args PictureServicePictureListTagCategoryArgs
 	_args.Req = req
-	var _result PictureServiceListPictureTagCategoryResult
-	if err = p.Client_().Call(ctx, "ListPictureTagCategory", &_args, &_result); err != nil {
+	var _result PictureServicePictureListTagCategoryResult
+	if err = p.Client_().Call(ctx, "PictureListTagCategory", &_args, &_result); err != nil {
 		return
 	}
 	return _result.GetSuccess(), nil
@@ -5108,6 +5652,15 @@ func (p *PictureServiceClient) QueryPictureById(ctx context.Context, req *QueryP
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *PictureServiceClient) ReviewPicture(ctx context.Context, req *ReviewPictureReq) (r *ReviewPictureResp, err error) {
+	var _args PictureServiceReviewPictureArgs
+	_args.Req = req
+	var _result PictureServiceReviewPictureResult
+	if err = p.Client_().Call(ctx, "ReviewPicture", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type PictureServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -5129,7 +5682,7 @@ func (p *PictureServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFun
 
 func NewPictureServiceProcessor(handler PictureService) *PictureServiceProcessor {
 	self := &PictureServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunction)}
-	self.AddToProcessorMap("ListPictureTagCategory", &pictureServiceProcessorListPictureTagCategory{handler: handler})
+	self.AddToProcessorMap("PictureListTagCategory", &pictureServiceProcessorPictureListTagCategory{handler: handler})
 	self.AddToProcessorMap("PictureSearch", &pictureServiceProcessorPictureSearch{handler: handler})
 	self.AddToProcessorMap("PictureGetById", &pictureServiceProcessorPictureGetById{handler: handler})
 	self.AddToProcessorMap("PictureEdit", &pictureServiceProcessorPictureEdit{handler: handler})
@@ -5138,6 +5691,7 @@ func NewPictureServiceProcessor(handler PictureService) *PictureServiceProcessor
 	self.AddToProcessorMap("UpdatePicture", &pictureServiceProcessorUpdatePicture{handler: handler})
 	self.AddToProcessorMap("QueryPicture", &pictureServiceProcessorQueryPicture{handler: handler})
 	self.AddToProcessorMap("QueryPictureById", &pictureServiceProcessorQueryPictureById{handler: handler})
+	self.AddToProcessorMap("ReviewPicture", &pictureServiceProcessorReviewPicture{handler: handler})
 	return self
 }
 func (p *PictureServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -5158,16 +5712,16 @@ func (p *PictureServiceProcessor) Process(ctx context.Context, iprot, oprot thri
 	return false, x
 }
 
-type pictureServiceProcessorListPictureTagCategory struct {
+type pictureServiceProcessorPictureListTagCategory struct {
 	handler PictureService
 }
 
-func (p *pictureServiceProcessorListPictureTagCategory) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	args := PictureServiceListPictureTagCategoryArgs{}
+func (p *pictureServiceProcessorPictureListTagCategory) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := PictureServicePictureListTagCategoryArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
 		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
-		oprot.WriteMessageBegin("ListPictureTagCategory", thrift.EXCEPTION, seqId)
+		oprot.WriteMessageBegin("PictureListTagCategory", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5176,11 +5730,11 @@ func (p *pictureServiceProcessorListPictureTagCategory) Process(ctx context.Cont
 
 	iprot.ReadMessageEnd()
 	var err2 error
-	result := PictureServiceListPictureTagCategoryResult{}
+	result := PictureServicePictureListTagCategoryResult{}
 	var retval *PictureTagCategoryResp
-	if retval, err2 = p.handler.ListPictureTagCategory(ctx, args.Req); err2 != nil {
-		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ListPictureTagCategory: "+err2.Error())
-		oprot.WriteMessageBegin("ListPictureTagCategory", thrift.EXCEPTION, seqId)
+	if retval, err2 = p.handler.PictureListTagCategory(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing PictureListTagCategory: "+err2.Error())
+		oprot.WriteMessageBegin("PictureListTagCategory", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
 		oprot.Flush(ctx)
@@ -5188,7 +5742,7 @@ func (p *pictureServiceProcessorListPictureTagCategory) Process(ctx context.Cont
 	} else {
 		result.Success = retval
 	}
-	if err2 = oprot.WriteMessageBegin("ListPictureTagCategory", thrift.REPLY, seqId); err2 != nil {
+	if err2 = oprot.WriteMessageBegin("PictureListTagCategory", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -5590,35 +6144,83 @@ func (p *pictureServiceProcessorQueryPictureById) Process(ctx context.Context, s
 	return true, err
 }
 
-type PictureServiceListPictureTagCategoryArgs struct {
+type pictureServiceProcessorReviewPicture struct {
+	handler PictureService
+}
+
+func (p *pictureServiceProcessorReviewPicture) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := PictureServiceReviewPictureArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("ReviewPicture", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := PictureServiceReviewPictureResult{}
+	var retval *ReviewPictureResp
+	if retval, err2 = p.handler.ReviewPicture(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing ReviewPicture: "+err2.Error())
+		oprot.WriteMessageBegin("ReviewPicture", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("ReviewPicture", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type PictureServicePictureListTagCategoryArgs struct {
 	Req *PictureTagCategoryReq `thrift:"req,1"`
 }
 
-func NewPictureServiceListPictureTagCategoryArgs() *PictureServiceListPictureTagCategoryArgs {
-	return &PictureServiceListPictureTagCategoryArgs{}
+func NewPictureServicePictureListTagCategoryArgs() *PictureServicePictureListTagCategoryArgs {
+	return &PictureServicePictureListTagCategoryArgs{}
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) InitDefault() {
+func (p *PictureServicePictureListTagCategoryArgs) InitDefault() {
 }
 
-var PictureServiceListPictureTagCategoryArgs_Req_DEFAULT *PictureTagCategoryReq
+var PictureServicePictureListTagCategoryArgs_Req_DEFAULT *PictureTagCategoryReq
 
-func (p *PictureServiceListPictureTagCategoryArgs) GetReq() (v *PictureTagCategoryReq) {
+func (p *PictureServicePictureListTagCategoryArgs) GetReq() (v *PictureTagCategoryReq) {
 	if !p.IsSetReq() {
-		return PictureServiceListPictureTagCategoryArgs_Req_DEFAULT
+		return PictureServicePictureListTagCategoryArgs_Req_DEFAULT
 	}
 	return p.Req
 }
 
-var fieldIDToName_PictureServiceListPictureTagCategoryArgs = map[int16]string{
+var fieldIDToName_PictureServicePictureListTagCategoryArgs = map[int16]string{
 	1: "req",
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) IsSetReq() bool {
+func (p *PictureServicePictureListTagCategoryArgs) IsSetReq() bool {
 	return p.Req != nil
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) Read(iprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryArgs) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 
@@ -5663,7 +6265,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceListPictureTagCategoryArgs[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServicePictureListTagCategoryArgs[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -5673,7 +6275,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) ReadField1(iprot thrift.TProtocol) error {
+func (p *PictureServicePictureListTagCategoryArgs) ReadField1(iprot thrift.TProtocol) error {
 	_field := NewPictureTagCategoryReq()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -5682,9 +6284,9 @@ func (p *PictureServiceListPictureTagCategoryArgs) ReadField1(iprot thrift.TProt
 	return nil
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) Write(oprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryArgs) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListPictureTagCategory_args"); err != nil {
+	if err = oprot.WriteStructBegin("PictureListTagCategory_args"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -5710,7 +6312,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) writeField1(oprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryArgs) writeField1(oprot thrift.TProtocol) (err error) {
 	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
 		goto WriteFieldBeginError
 	}
@@ -5727,43 +6329,43 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryArgs) String() string {
+func (p *PictureServicePictureListTagCategoryArgs) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PictureServiceListPictureTagCategoryArgs(%+v)", *p)
+	return fmt.Sprintf("PictureServicePictureListTagCategoryArgs(%+v)", *p)
 
 }
 
-type PictureServiceListPictureTagCategoryResult struct {
+type PictureServicePictureListTagCategoryResult struct {
 	Success *PictureTagCategoryResp `thrift:"success,0,optional"`
 }
 
-func NewPictureServiceListPictureTagCategoryResult() *PictureServiceListPictureTagCategoryResult {
-	return &PictureServiceListPictureTagCategoryResult{}
+func NewPictureServicePictureListTagCategoryResult() *PictureServicePictureListTagCategoryResult {
+	return &PictureServicePictureListTagCategoryResult{}
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) InitDefault() {
+func (p *PictureServicePictureListTagCategoryResult) InitDefault() {
 }
 
-var PictureServiceListPictureTagCategoryResult_Success_DEFAULT *PictureTagCategoryResp
+var PictureServicePictureListTagCategoryResult_Success_DEFAULT *PictureTagCategoryResp
 
-func (p *PictureServiceListPictureTagCategoryResult) GetSuccess() (v *PictureTagCategoryResp) {
+func (p *PictureServicePictureListTagCategoryResult) GetSuccess() (v *PictureTagCategoryResp) {
 	if !p.IsSetSuccess() {
-		return PictureServiceListPictureTagCategoryResult_Success_DEFAULT
+		return PictureServicePictureListTagCategoryResult_Success_DEFAULT
 	}
 	return p.Success
 }
 
-var fieldIDToName_PictureServiceListPictureTagCategoryResult = map[int16]string{
+var fieldIDToName_PictureServicePictureListTagCategoryResult = map[int16]string{
 	0: "success",
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) IsSetSuccess() bool {
+func (p *PictureServicePictureListTagCategoryResult) IsSetSuccess() bool {
 	return p.Success != nil
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) Read(iprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryResult) Read(iprot thrift.TProtocol) (err error) {
 	var fieldTypeId thrift.TType
 	var fieldId int16
 
@@ -5808,7 +6410,7 @@ ReadStructBeginError:
 ReadFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
 ReadFieldError:
-	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceListPictureTagCategoryResult[fieldId]), err)
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServicePictureListTagCategoryResult[fieldId]), err)
 SkipFieldError:
 	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
 
@@ -5818,7 +6420,7 @@ ReadStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) ReadField0(iprot thrift.TProtocol) error {
+func (p *PictureServicePictureListTagCategoryResult) ReadField0(iprot thrift.TProtocol) error {
 	_field := NewPictureTagCategoryResp()
 	if err := _field.Read(iprot); err != nil {
 		return err
@@ -5827,9 +6429,9 @@ func (p *PictureServiceListPictureTagCategoryResult) ReadField0(iprot thrift.TPr
 	return nil
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) Write(oprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryResult) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
-	if err = oprot.WriteStructBegin("ListPictureTagCategory_result"); err != nil {
+	if err = oprot.WriteStructBegin("PictureListTagCategory_result"); err != nil {
 		goto WriteStructBeginError
 	}
 	if p != nil {
@@ -5855,7 +6457,7 @@ WriteStructEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) writeField0(oprot thrift.TProtocol) (err error) {
+func (p *PictureServicePictureListTagCategoryResult) writeField0(oprot thrift.TProtocol) (err error) {
 	if p.IsSetSuccess() {
 		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
 			goto WriteFieldBeginError
@@ -5874,11 +6476,11 @@ WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
 }
 
-func (p *PictureServiceListPictureTagCategoryResult) String() string {
+func (p *PictureServicePictureListTagCategoryResult) String() string {
 	if p == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("PictureServiceListPictureTagCategoryResult(%+v)", *p)
+	return fmt.Sprintf("PictureServicePictureListTagCategoryResult(%+v)", *p)
 
 }
 
@@ -8215,5 +8817,297 @@ func (p *PictureServiceQueryPictureByIdResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("PictureServiceQueryPictureByIdResult(%+v)", *p)
+
+}
+
+type PictureServiceReviewPictureArgs struct {
+	Req *ReviewPictureReq `thrift:"req,1"`
+}
+
+func NewPictureServiceReviewPictureArgs() *PictureServiceReviewPictureArgs {
+	return &PictureServiceReviewPictureArgs{}
+}
+
+func (p *PictureServiceReviewPictureArgs) InitDefault() {
+}
+
+var PictureServiceReviewPictureArgs_Req_DEFAULT *ReviewPictureReq
+
+func (p *PictureServiceReviewPictureArgs) GetReq() (v *ReviewPictureReq) {
+	if !p.IsSetReq() {
+		return PictureServiceReviewPictureArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_PictureServiceReviewPictureArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *PictureServiceReviewPictureArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PictureServiceReviewPictureArgs) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceReviewPictureArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewReviewPictureReq()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *PictureServiceReviewPictureArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReviewPicture_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PictureServiceReviewPictureArgs(%+v)", *p)
+
+}
+
+type PictureServiceReviewPictureResult struct {
+	Success *ReviewPictureResp `thrift:"success,0,optional"`
+}
+
+func NewPictureServiceReviewPictureResult() *PictureServiceReviewPictureResult {
+	return &PictureServiceReviewPictureResult{}
+}
+
+func (p *PictureServiceReviewPictureResult) InitDefault() {
+}
+
+var PictureServiceReviewPictureResult_Success_DEFAULT *ReviewPictureResp
+
+func (p *PictureServiceReviewPictureResult) GetSuccess() (v *ReviewPictureResp) {
+	if !p.IsSetSuccess() {
+		return PictureServiceReviewPictureResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_PictureServiceReviewPictureResult = map[int16]string{
+	0: "success",
+}
+
+func (p *PictureServiceReviewPictureResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PictureServiceReviewPictureResult) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceReviewPictureResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewReviewPictureResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *PictureServiceReviewPictureResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("ReviewPicture_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *PictureServiceReviewPictureResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PictureServiceReviewPictureResult(%+v)", *p)
 
 }

@@ -36,4 +36,16 @@ var (
 		0: "未删除",
 		1: "已删除",
 	}
+
+	ReviewPictureMap = map[string]int{
+		"待审核": 0,
+		"通过":  1,
+		"拒绝":  2,
+	}
+
+	ReviewStatusMap = map[int]string{
+		0: "待审核",
+		1: "通过",
+		2: "拒绝",
+	}
 )

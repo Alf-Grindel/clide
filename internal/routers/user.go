@@ -12,7 +12,7 @@ func RegisterUserRouters(h *server.Hertz) {
 	// auth user router
 	userAuthGroup := h.Group("/user", mw.AuthMiddleware())
 	// admin - only router
-	adminGroup := userAuthGroup.Group("/admin", mw.AuthMiddleware())
+	adminGroup := userAuthGroup.Group("/admin", mw.AdminMiddleware())
 
 	userPublicGroup.POST("/register", user_handler.UserRegister)
 	userPublicGroup.POST("/login", user_handler.UserLogin)
