@@ -10,10 +10,8 @@ const (
 const (
 	CosDefaultOrigin = "https://%s.cos.%s.myqcloud.com"
 	MaxFileSize      = 2 * 1024 * 1024 // 2MB
-	UploadFileName   = "%s_%s.%s"
-	UploadPath       = "/%s/%s"
 
-	PubicSpace = "public/%s"
+	PublicSpace = "public/%s"
 )
 
 const (

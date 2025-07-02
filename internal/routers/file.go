@@ -22,6 +22,7 @@ func RegisterFileRouters(h *server.Hertz) {
 
 	fileAuthGroup.POST("/edit", file_handler.PictureEdit)
 	fileAuthGroup.POST("/upload", file_handler.UploadPicture)
+	fileAuthGroup.POST("/upload/url", file_handler.UploadPictureByUrl)
 
 	// admin - only file
 	adminGroup.POST("/delete", file_handler.DeletePicture)

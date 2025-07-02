@@ -69,7 +69,7 @@ func (s *PictureService) PictureEdit(req *picture.PictureEditReq, c *app.Request
 // UploadPicture 上传图片
 // params:
 //   - req: 图片上传请求体
-//     optional: pictureId
+//     optional: pictureId , pictureUrl
 //   - file: 图片
 //   - c: 请求上下文
 //
@@ -100,35 +100,45 @@ func (s *PictureService) UploadPicture(req *picture.UploadPictureReq, file *mult
 	}
 	// 上传图片，获取图片信息
 	// 根据用户id划分目录
-	subfix := strconv.FormatInt(loginUser.Id, 10)
-	uploadPathPrefix := fmt.Sprintf(constants.PubicSpace, subfix)
-	client := tencentCos.NewTencentClient()
-	fileManager := tencentCos.NewTencentFile(s.ctx, client)
-	fileResult, err := fileManager.UploadPicture(file, uploadPathPrefix)
-	if err != nil {
-		return 0, err
+	userId := strconv.FormatInt(loginUser.Id, 10)
+	dirPrefix := fmt.Sprintf(constants.PublicSpace, userId)
+	var fileInfo *tencentCos.File
+	switch {
+	case file != nil:
+		fileInfo, err = tencentCos.UploadPicture(s.ctx, file, dirPrefix)
+		if err != nil {
+			return 0, err
+		}
+	case req.FileURL != nil:
+		fileInfo, err = tencentCos.UploadPictureByUrl(s.ctx, req.GetFileURL(), dirPrefix)
+		if err != nil {
+			return 0, err
+		}
+	default:
+		return 0, errno.ParamErr.WithMessage("无上传文件")
 	}
-	pictureInf := &db_picture.Picture{
-		Url:       fileResult.Url,
-		PicName:   fileResult.PicName,
-		PicSize:   fileResult.PicSize,
-		PicWidth:  fileResult.PicHeight,
-		PicHeight: fileResult.PicHeight,
-		PicScale:  fileResult.PicScale,
-		PicFormat: fileResult.PicFormat,
+
+	pictureInfo := &db_picture.Picture{
+		Url:       fileInfo.Url,
+		PicName:   fileInfo.PicName,
+		PicSize:   fileInfo.PicSize,
+		PicWidth:  fileInfo.PicWidth,
+		PicHeight: fileInfo.PicHeight,
+		PicScale:  fileInfo.PicScale,
+		PicFormat: fileInfo.PicFormat,
 		UserId:    loginUser.Id,
 	}
-	fillReviewParams(pictureInf, loginUser)
+	fillReviewParams(pictureInfo, loginUser)
 	// 如果是更新
 	if id != 0 {
-		pictureInf.Id = id
-		pictureInf.EditTime = time.Now()
-		err = db_picture.UpdatePicture(s.ctx, pictureInf)
+		pictureInfo.Id = id
+		pictureInfo.EditTime = time.Now()
+		err = db_picture.UpdatePicture(s.ctx, pictureInfo)
 		if err != nil {
 			return 0, errno.SystemErr
 		}
 	} else {
-		id, err = db_picture.CreatePicture(s.ctx, pictureInf)
+		id, err = db_picture.CreatePicture(s.ctx, pictureInfo)
 		if err != nil {
 			return 0, errno.SystemErr
 		}

@@ -8,6 +8,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/hertz-contrib/cors"
 	"github.com/hertz-contrib/gzip"
+	"github.com/hertz-contrib/pprof"
 	"github.com/hertz-contrib/sessions"
 	"github.com/hertz-contrib/sessions/cookie"
 	"time"
@@ -40,5 +41,6 @@ func main() {
 
 	routers.RegisterRouters(h)
 
+	pprof.Register(h, "dev/pprof")
 	h.Spin()
 }

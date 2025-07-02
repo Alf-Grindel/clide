@@ -55,9 +55,9 @@ struct PictureEditResp {
     255: base.BaseResp base
 }
 
-## admin
 struct UploadPictureReq {
     1: optional i64 id
+    2: optional string file_url
 }
 
 struct UploadPictureResp {
@@ -65,6 +65,7 @@ struct UploadPictureResp {
     255: base.BaseResp base
 }
 
+## admin
 struct DeletePictureReq {
     1: i64 id
 }

@@ -2361,9 +2361,9 @@ func (p *PictureEditResp) String() string {
 
 }
 
-// # admin
 type UploadPictureReq struct {
-	ID *int64 `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	ID      *int64  `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
+	FileURL *string `thrift:"file_url,2,optional" form:"file_url" json:"file_url,omitempty" query:"file_url"`
 }
 
 func NewUploadPictureReq() *UploadPictureReq {
@@ -2382,12 +2382,26 @@ func (p *UploadPictureReq) GetID() (v int64) {
 	return *p.ID
 }
 
+var UploadPictureReq_FileURL_DEFAULT string
+
+func (p *UploadPictureReq) GetFileURL() (v string) {
+	if !p.IsSetFileURL() {
+		return UploadPictureReq_FileURL_DEFAULT
+	}
+	return *p.FileURL
+}
+
 var fieldIDToName_UploadPictureReq = map[int16]string{
 	1: "id",
+	2: "file_url",
 }
 
 func (p *UploadPictureReq) IsSetID() bool {
 	return p.ID != nil
+}
+
+func (p *UploadPictureReq) IsSetFileURL() bool {
+	return p.FileURL != nil
 }
 
 func (p *UploadPictureReq) Read(iprot thrift.TProtocol) (err error) {
@@ -2411,6 +2425,14 @@ func (p *UploadPictureReq) Read(iprot thrift.TProtocol) (err error) {
 		case 1:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField2(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -2456,6 +2478,17 @@ func (p *UploadPictureReq) ReadField1(iprot thrift.TProtocol) error {
 	p.ID = _field
 	return nil
 }
+func (p *UploadPictureReq) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.FileURL = _field
+	return nil
+}
 
 func (p *UploadPictureReq) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -2465,6 +2498,10 @@ func (p *UploadPictureReq) Write(oprot thrift.TProtocol) (err error) {
 	if p != nil {
 		if err = p.writeField1(oprot); err != nil {
 			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
 			goto WriteFieldError
 		}
 	}
@@ -2502,6 +2539,24 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *UploadPictureReq) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetFileURL() {
+		if err = oprot.WriteFieldBegin("file_url", thrift.STRING, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.FileURL); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
 }
 
 func (p *UploadPictureReq) String() string {
@@ -2702,6 +2757,7 @@ func (p *UploadPictureResp) String() string {
 
 }
 
+// # admin
 type DeletePictureReq struct {
 	ID int64 `thrift:"id,1" form:"id" json:"id" query:"id"`
 }

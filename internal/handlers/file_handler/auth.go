@@ -53,3 +53,23 @@ func UploadPicture(ctx context.Context, c *app.RequestContext) {
 	}
 	c.JSON(200, resp)
 }
+
+func UploadPictureByUrl(ctx context.Context, c *app.RequestContext) {
+	var req picture.UploadPictureReq
+	if err := c.BindAndValidate(&req); err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	id, err := picture_services.NewPictureService(ctx).UploadPicture(&req, nil, c)
+	if err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	resp := &picture.UploadPictureResp{
+		ID:   id,
+		Base: errno.BuildBaseResp(errno.Success),
+	}
+	c.JSON(200, resp)
+}
