@@ -50,6 +50,9 @@ func UploadPictureTemplate(ctx context.Context, uploader Uploader, dirPrefix str
 		return nil, err
 	}
 	fileNameType := strings.TrimPrefix(filepath.Ext(originFileName), ".")
+	if _, ok := pictureType[fileNameType]; !ok {
+		fileNameType = "png"
+	}
 	uuidVal, err := utils.GenerateId()
 	if err != nil {
 		hlog.Errorf("cos_client - validFileFormat: build uuid failed, %s\n", err)

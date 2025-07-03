@@ -2364,6 +2364,7 @@ func (p *PictureEditResp) String() string {
 type UploadPictureReq struct {
 	ID      *int64  `thrift:"id,1,optional" form:"id" json:"id,omitempty" query:"id"`
 	FileURL *string `thrift:"file_url,2,optional" form:"file_url" json:"file_url,omitempty" query:"file_url"`
+	PicName *string `thrift:"pic_name,3,optional" form:"pic_name" json:"pic_name,omitempty" query:"pic_name"`
 }
 
 func NewUploadPictureReq() *UploadPictureReq {
@@ -2391,9 +2392,19 @@ func (p *UploadPictureReq) GetFileURL() (v string) {
 	return *p.FileURL
 }
 
+var UploadPictureReq_PicName_DEFAULT string
+
+func (p *UploadPictureReq) GetPicName() (v string) {
+	if !p.IsSetPicName() {
+		return UploadPictureReq_PicName_DEFAULT
+	}
+	return *p.PicName
+}
+
 var fieldIDToName_UploadPictureReq = map[int16]string{
 	1: "id",
 	2: "file_url",
+	3: "pic_name",
 }
 
 func (p *UploadPictureReq) IsSetID() bool {
@@ -2402,6 +2413,10 @@ func (p *UploadPictureReq) IsSetID() bool {
 
 func (p *UploadPictureReq) IsSetFileURL() bool {
 	return p.FileURL != nil
+}
+
+func (p *UploadPictureReq) IsSetPicName() bool {
+	return p.PicName != nil
 }
 
 func (p *UploadPictureReq) Read(iprot thrift.TProtocol) (err error) {
@@ -2433,6 +2448,14 @@ func (p *UploadPictureReq) Read(iprot thrift.TProtocol) (err error) {
 		case 2:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 3:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField3(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -2489,6 +2512,17 @@ func (p *UploadPictureReq) ReadField2(iprot thrift.TProtocol) error {
 	p.FileURL = _field
 	return nil
 }
+func (p *UploadPictureReq) ReadField3(iprot thrift.TProtocol) error {
+
+	var _field *string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.PicName = _field
+	return nil
+}
 
 func (p *UploadPictureReq) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -2502,6 +2536,10 @@ func (p *UploadPictureReq) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField2(oprot); err != nil {
 			fieldId = 2
+			goto WriteFieldError
+		}
+		if err = p.writeField3(oprot); err != nil {
+			fieldId = 3
 			goto WriteFieldError
 		}
 	}
@@ -2557,6 +2595,24 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+func (p *UploadPictureReq) writeField3(oprot thrift.TProtocol) (err error) {
+	if p.IsSetPicName() {
+		if err = oprot.WriteFieldBegin("pic_name", thrift.STRING, 3); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteString(*p.PicName); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
 }
 
 func (p *UploadPictureReq) String() string {
@@ -5578,6 +5634,391 @@ func (p *ReviewPictureResp) String() string {
 
 }
 
+type UploadPictureByBatchReq struct {
+	SearchText  string `thrift:"search_text,1" form:"search_text" json:"search_text" query:"search_text"`
+	UploadCount *int64 `thrift:"upload_count,2,optional" form:"upload_count" json:"upload_count,omitempty" query:"upload_count" vd:" $ == null || $ < 30 "`
+}
+
+func NewUploadPictureByBatchReq() *UploadPictureByBatchReq {
+	return &UploadPictureByBatchReq{}
+}
+
+func (p *UploadPictureByBatchReq) InitDefault() {
+}
+
+func (p *UploadPictureByBatchReq) GetSearchText() (v string) {
+	return p.SearchText
+}
+
+var UploadPictureByBatchReq_UploadCount_DEFAULT int64
+
+func (p *UploadPictureByBatchReq) GetUploadCount() (v int64) {
+	if !p.IsSetUploadCount() {
+		return UploadPictureByBatchReq_UploadCount_DEFAULT
+	}
+	return *p.UploadCount
+}
+
+var fieldIDToName_UploadPictureByBatchReq = map[int16]string{
+	1: "search_text",
+	2: "upload_count",
+}
+
+func (p *UploadPictureByBatchReq) IsSetUploadCount() bool {
+	return p.UploadCount != nil
+}
+
+func (p *UploadPictureByBatchReq) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRING {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 2:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField2(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UploadPictureByBatchReq[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchReq) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field string
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.SearchText = _field
+	return nil
+}
+func (p *UploadPictureByBatchReq) ReadField2(iprot thrift.TProtocol) error {
+
+	var _field *int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.UploadCount = _field
+	return nil
+}
+
+func (p *UploadPictureByBatchReq) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UploadPictureByBatchReq"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField2(oprot); err != nil {
+			fieldId = 2
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchReq) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("search_text", thrift.STRING, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteString(p.SearchText); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *UploadPictureByBatchReq) writeField2(oprot thrift.TProtocol) (err error) {
+	if p.IsSetUploadCount() {
+		if err = oprot.WriteFieldBegin("upload_count", thrift.I64, 2); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteI64(*p.UploadCount); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 2 end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchReq) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadPictureByBatchReq(%+v)", *p)
+
+}
+
+type UploadPictureByBatchResp struct {
+	UploadCount int64          `thrift:"upload_count,1" form:"upload_count" json:"upload_count" query:"upload_count"`
+	Base        *base.BaseResp `thrift:"base,255" form:"base" json:"base" query:"base"`
+}
+
+func NewUploadPictureByBatchResp() *UploadPictureByBatchResp {
+	return &UploadPictureByBatchResp{}
+}
+
+func (p *UploadPictureByBatchResp) InitDefault() {
+}
+
+func (p *UploadPictureByBatchResp) GetUploadCount() (v int64) {
+	return p.UploadCount
+}
+
+var UploadPictureByBatchResp_Base_DEFAULT *base.BaseResp
+
+func (p *UploadPictureByBatchResp) GetBase() (v *base.BaseResp) {
+	if !p.IsSetBase() {
+		return UploadPictureByBatchResp_Base_DEFAULT
+	}
+	return p.Base
+}
+
+var fieldIDToName_UploadPictureByBatchResp = map[int16]string{
+	1:   "upload_count",
+	255: "base",
+}
+
+func (p *UploadPictureByBatchResp) IsSetBase() bool {
+	return p.Base != nil
+}
+
+func (p *UploadPictureByBatchResp) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.I64 {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 255:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField255(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_UploadPictureByBatchResp[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchResp) ReadField1(iprot thrift.TProtocol) error {
+
+	var _field int64
+	if v, err := iprot.ReadI64(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.UploadCount = _field
+	return nil
+}
+func (p *UploadPictureByBatchResp) ReadField255(iprot thrift.TProtocol) error {
+	_field := base.NewBaseResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Base = _field
+	return nil
+}
+
+func (p *UploadPictureByBatchResp) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UploadPictureByBatchResp"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+		if err = p.writeField255(oprot); err != nil {
+			fieldId = 255
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchResp) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("upload_count", thrift.I64, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteI64(p.UploadCount); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+func (p *UploadPictureByBatchResp) writeField255(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("base", thrift.STRUCT, 255); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Base.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 255 end error: ", p), err)
+}
+
+func (p *UploadPictureByBatchResp) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("UploadPictureByBatchResp(%+v)", *p)
+
+}
+
 type PictureService interface {
 	//# public
 	PictureListTagCategory(ctx context.Context, req *PictureTagCategoryReq) (r *PictureTagCategoryResp, err error)
@@ -5587,9 +6028,9 @@ type PictureService interface {
 	PictureGetById(ctx context.Context, req *PictureGetByIdReq) (r *PictureGetByIdResp, err error)
 	//# auth
 	PictureEdit(ctx context.Context, req *PictureEditReq) (r *PictureEditResp, err error)
-	//# admin
-	UploadPicture(ctx context.Context, req *UploadPictureReq) (r *UploadPictureResp, err error)
 
+	UploadPicture(ctx context.Context, req *UploadPictureReq) (r *UploadPictureResp, err error)
+	//# admin
 	DeletePicture(ctx context.Context, req *DeletePictureReq) (r *DeletePictureResp, err error)
 
 	UpdatePicture(ctx context.Context, req *UpdatePictureReq) (r *UpdatePictureResp, err error)
@@ -5599,6 +6040,8 @@ type PictureService interface {
 	QueryPictureById(ctx context.Context, req *QueryPictureByIdReq) (r *QueryPictureByIdResp, err error)
 
 	ReviewPicture(ctx context.Context, req *ReviewPictureReq) (r *ReviewPictureResp, err error)
+
+	UploadPictureByBatch(ctx context.Context, req *UploadPictureByBatchReq) (r *UploadPictureByBatchResp, err error)
 }
 
 type PictureServiceClient struct {
@@ -5717,6 +6160,15 @@ func (p *PictureServiceClient) ReviewPicture(ctx context.Context, req *ReviewPic
 	}
 	return _result.GetSuccess(), nil
 }
+func (p *PictureServiceClient) UploadPictureByBatch(ctx context.Context, req *UploadPictureByBatchReq) (r *UploadPictureByBatchResp, err error) {
+	var _args PictureServiceUploadPictureByBatchArgs
+	_args.Req = req
+	var _result PictureServiceUploadPictureByBatchResult
+	if err = p.Client_().Call(ctx, "UploadPictureByBatch", &_args, &_result); err != nil {
+		return
+	}
+	return _result.GetSuccess(), nil
+}
 
 type PictureServiceProcessor struct {
 	processorMap map[string]thrift.TProcessorFunction
@@ -5748,6 +6200,7 @@ func NewPictureServiceProcessor(handler PictureService) *PictureServiceProcessor
 	self.AddToProcessorMap("QueryPicture", &pictureServiceProcessorQueryPicture{handler: handler})
 	self.AddToProcessorMap("QueryPictureById", &pictureServiceProcessorQueryPictureById{handler: handler})
 	self.AddToProcessorMap("ReviewPicture", &pictureServiceProcessorReviewPicture{handler: handler})
+	self.AddToProcessorMap("UploadPictureByBatch", &pictureServiceProcessorUploadPictureByBatch{handler: handler})
 	return self
 }
 func (p *PictureServiceProcessor) Process(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
@@ -6231,6 +6684,54 @@ func (p *pictureServiceProcessorReviewPicture) Process(ctx context.Context, seqI
 		result.Success = retval
 	}
 	if err2 = oprot.WriteMessageBegin("ReviewPicture", thrift.REPLY, seqId); err2 != nil {
+		err = err2
+	}
+	if err2 = result.Write(oprot); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
+		err = err2
+	}
+	if err2 = oprot.Flush(ctx); err == nil && err2 != nil {
+		err = err2
+	}
+	if err != nil {
+		return
+	}
+	return true, err
+}
+
+type pictureServiceProcessorUploadPictureByBatch struct {
+	handler PictureService
+}
+
+func (p *pictureServiceProcessorUploadPictureByBatch) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+	args := PictureServiceUploadPictureByBatchArgs{}
+	if err = args.Read(iprot); err != nil {
+		iprot.ReadMessageEnd()
+		x := thrift.NewTApplicationException(thrift.PROTOCOL_ERROR, err.Error())
+		oprot.WriteMessageBegin("UploadPictureByBatch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return false, err
+	}
+
+	iprot.ReadMessageEnd()
+	var err2 error
+	result := PictureServiceUploadPictureByBatchResult{}
+	var retval *UploadPictureByBatchResp
+	if retval, err2 = p.handler.UploadPictureByBatch(ctx, args.Req); err2 != nil {
+		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing UploadPictureByBatch: "+err2.Error())
+		oprot.WriteMessageBegin("UploadPictureByBatch", thrift.EXCEPTION, seqId)
+		x.Write(oprot)
+		oprot.WriteMessageEnd()
+		oprot.Flush(ctx)
+		return true, err2
+	} else {
+		result.Success = retval
+	}
+	if err2 = oprot.WriteMessageBegin("UploadPictureByBatch", thrift.REPLY, seqId); err2 != nil {
 		err = err2
 	}
 	if err2 = result.Write(oprot); err == nil && err2 != nil {
@@ -9165,5 +9666,297 @@ func (p *PictureServiceReviewPictureResult) String() string {
 		return "<nil>"
 	}
 	return fmt.Sprintf("PictureServiceReviewPictureResult(%+v)", *p)
+
+}
+
+type PictureServiceUploadPictureByBatchArgs struct {
+	Req *UploadPictureByBatchReq `thrift:"req,1"`
+}
+
+func NewPictureServiceUploadPictureByBatchArgs() *PictureServiceUploadPictureByBatchArgs {
+	return &PictureServiceUploadPictureByBatchArgs{}
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) InitDefault() {
+}
+
+var PictureServiceUploadPictureByBatchArgs_Req_DEFAULT *UploadPictureByBatchReq
+
+func (p *PictureServiceUploadPictureByBatchArgs) GetReq() (v *UploadPictureByBatchReq) {
+	if !p.IsSetReq() {
+		return PictureServiceUploadPictureByBatchArgs_Req_DEFAULT
+	}
+	return p.Req
+}
+
+var fieldIDToName_PictureServiceUploadPictureByBatchArgs = map[int16]string{
+	1: "req",
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) IsSetReq() bool {
+	return p.Req != nil
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 1:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField1(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceUploadPictureByBatchArgs[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) ReadField1(iprot thrift.TProtocol) error {
+	_field := NewUploadPictureByBatchReq()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Req = _field
+	return nil
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UploadPictureByBatch_args"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField1(oprot); err != nil {
+			fieldId = 1
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) writeField1(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("req", thrift.STRUCT, 1); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.Req.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 1 end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchArgs) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PictureServiceUploadPictureByBatchArgs(%+v)", *p)
+
+}
+
+type PictureServiceUploadPictureByBatchResult struct {
+	Success *UploadPictureByBatchResp `thrift:"success,0,optional"`
+}
+
+func NewPictureServiceUploadPictureByBatchResult() *PictureServiceUploadPictureByBatchResult {
+	return &PictureServiceUploadPictureByBatchResult{}
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) InitDefault() {
+}
+
+var PictureServiceUploadPictureByBatchResult_Success_DEFAULT *UploadPictureByBatchResp
+
+func (p *PictureServiceUploadPictureByBatchResult) GetSuccess() (v *UploadPictureByBatchResp) {
+	if !p.IsSetSuccess() {
+		return PictureServiceUploadPictureByBatchResult_Success_DEFAULT
+	}
+	return p.Success
+}
+
+var fieldIDToName_PictureServiceUploadPictureByBatchResult = map[int16]string{
+	0: "success",
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) IsSetSuccess() bool {
+	return p.Success != nil
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) Read(iprot thrift.TProtocol) (err error) {
+	var fieldTypeId thrift.TType
+	var fieldId int16
+
+	if _, err = iprot.ReadStructBegin(); err != nil {
+		goto ReadStructBeginError
+	}
+
+	for {
+		_, fieldTypeId, fieldId, err = iprot.ReadFieldBegin()
+		if err != nil {
+			goto ReadFieldBeginError
+		}
+		if fieldTypeId == thrift.STOP {
+			break
+		}
+
+		switch fieldId {
+		case 0:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField0(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		default:
+			if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		}
+		if err = iprot.ReadFieldEnd(); err != nil {
+			goto ReadFieldEndError
+		}
+	}
+	if err = iprot.ReadStructEnd(); err != nil {
+		goto ReadStructEndError
+	}
+
+	return nil
+ReadStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct begin error: ", p), err)
+ReadFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d begin error: ", p, fieldId), err)
+ReadFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T read field %d '%s' error: ", p, fieldId, fieldIDToName_PictureServiceUploadPictureByBatchResult[fieldId]), err)
+SkipFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T field %d skip type %d error: ", p, fieldId, fieldTypeId), err)
+
+ReadFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read field end error", p), err)
+ReadStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T read struct end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) ReadField0(iprot thrift.TProtocol) error {
+	_field := NewUploadPictureByBatchResp()
+	if err := _field.Read(iprot); err != nil {
+		return err
+	}
+	p.Success = _field
+	return nil
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) Write(oprot thrift.TProtocol) (err error) {
+	var fieldId int16
+	if err = oprot.WriteStructBegin("UploadPictureByBatch_result"); err != nil {
+		goto WriteStructBeginError
+	}
+	if p != nil {
+		if err = p.writeField0(oprot); err != nil {
+			fieldId = 0
+			goto WriteFieldError
+		}
+	}
+	if err = oprot.WriteFieldStop(); err != nil {
+		goto WriteFieldStopError
+	}
+	if err = oprot.WriteStructEnd(); err != nil {
+		goto WriteStructEndError
+	}
+	return nil
+WriteStructBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct begin error: ", p), err)
+WriteFieldError:
+	return thrift.PrependError(fmt.Sprintf("%T write field %d error: ", p, fieldId), err)
+WriteFieldStopError:
+	return thrift.PrependError(fmt.Sprintf("%T write field stop error: ", p), err)
+WriteStructEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write struct end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) writeField0(oprot thrift.TProtocol) (err error) {
+	if p.IsSetSuccess() {
+		if err = oprot.WriteFieldBegin("success", thrift.STRUCT, 0); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := p.Success.Write(oprot); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 0 end error: ", p), err)
+}
+
+func (p *PictureServiceUploadPictureByBatchResult) String() string {
+	if p == nil {
+		return "<nil>"
+	}
+	return fmt.Sprintf("PictureServiceUploadPictureByBatchResult(%+v)", *p)
 
 }

@@ -30,4 +30,5 @@ func RegisterFileRouters(h *server.Hertz) {
 	adminGroup.GET("/get", file_handler.QueryPictureById)
 	adminGroup.GET("/query", file_handler.QueryPicture)
 	adminGroup.POST("/review", file_handler.ReviewPicture)
+	adminGroup.POST("/upload/batch", file_handler.UploadPictureByBatch)
 }

@@ -12,6 +12,8 @@ const (
 	MaxFileSize      = 2 * 1024 * 1024 // 2MB
 
 	PublicSpace = "public/%s"
+
+	FetchUrl = "https://cn.bing.com/images/async?q=%s&mmasync=1"
 )
 
 const (

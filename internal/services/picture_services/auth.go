@@ -128,6 +128,9 @@ func (s *PictureService) UploadPicture(req *picture.UploadPictureReq, file *mult
 		PicFormat: fileInfo.PicFormat,
 		UserId:    loginUser.Id,
 	}
+	if req.PicName != nil {
+		pictureInfo.PicName = req.GetPicName()
+	}
 	fillReviewParams(pictureInfo, loginUser)
 	// 如果是更新
 	if id != 0 {

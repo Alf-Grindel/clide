@@ -58,6 +58,7 @@ struct PictureEditResp {
 struct UploadPictureReq {
     1: optional i64 id
     2: optional string file_url
+    3: optional string pic_name
 }
 
 struct UploadPictureResp {
@@ -133,6 +134,16 @@ struct ReviewPictureResp {
 }
 
 
+struct UploadPictureByBatchReq {
+    1: string  search_text
+    2: optional i64 upload_count (api.vd = " $ == null || $ < 30 ")
+}
+
+struct UploadPictureByBatchResp {
+    1: i64 upload_count
+    255: base.BaseResp base
+}
+
 service PictureService {
 
     ## public
@@ -143,14 +154,14 @@ service PictureService {
 
     ## auth
     PictureEditResp PictureEdit (1: PictureEditReq req)
+    UploadPictureResp UploadPicture(1: UploadPictureReq req)
 
     ## admin
-    UploadPictureResp UploadPicture(1: UploadPictureReq req)
     DeletePictureResp DeletePicture(1: DeletePictureReq req)
     UpdatePictureResp UpdatePicture(1: UpdatePictureReq req)
     QueryPictureResp QueryPicture(1: QueryPictureReq req)
     QueryPictureByIdResp QueryPictureById(1: QueryPictureByIdReq req)
     ReviewPictureResp ReviewPicture(1: ReviewPictureReq req)
+    UploadPictureByBatchResp UploadPictureByBatch(1: UploadPictureByBatchReq req)
 }
-
 

@@ -106,3 +106,23 @@ func ReviewPicture(ctx context.Context, c *app.RequestContext) {
 	}
 	c.JSON(200, resp)
 }
+
+func UploadPictureByBatch(ctx context.Context, c *app.RequestContext) {
+	var req picture.UploadPictureByBatchReq
+	if err := c.BindAndValidate(&req); err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	uploadCount, err := picture_services.NewPictureService(ctx).UploadPictureByBatch(&req, c)
+	if err != nil {
+		resp := errno.BuildBaseResp(err)
+		c.JSON(200, resp)
+		return
+	}
+	resp := &picture.UploadPictureByBatchResp{
+		UploadCount: uploadCount,
+		Base:        errno.BuildBaseResp(errno.Success),
+	}
+	c.JSON(200, resp)
+}

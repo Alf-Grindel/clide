@@ -1,6 +1,16 @@
 package picture_services
 
 import (
+	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
+	"github.com/bytedance/sonic"
+	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
+	"github.com/gocolly/colly"
+
 	"github.com/Alf-Grindel/clide/internal/dal/db/db_picture"
 	"github.com/Alf-Grindel/clide/internal/dal/db/db_user"
 	"github.com/Alf-Grindel/clide/internal/model/base"
@@ -8,10 +18,6 @@ import (
 	"github.com/Alf-Grindel/clide/internal/services"
 	"github.com/Alf-Grindel/clide/pkg/constants"
 	"github.com/Alf-Grindel/clide/pkg/errno"
-	"github.com/bytedance/sonic"
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"time"
 )
 
 // DeletePicture - 删除图片
@@ -204,4 +210,92 @@ func (s *PictureService) DoPictureReview(req *picture.ReviewPictureReq, c *app.R
 		return errno.OperationErr
 	}
 	return nil
+}
+
+// UploadPictureByBatch - 爬虫上传图片
+// params:
+//   - req: 图片爬虫请求体
+//     required: searchText, count 搜索数默认为10条
+//   - c: 请求上下文
+//
+// returns:
+//   - number: 爬虫数量
+//   - error: nil on success, non-nil on faliure
+func (s *PictureService) UploadPictureByBatch(req *picture.UploadPictureByBatchReq, c *app.RequestContext) (int64, error) {
+	if req == nil {
+		return 0, errno.ParamErr
+	}
+	searchText := req.GetSearchText()
+	count := int64(10)
+	if req.UploadCount != nil {
+		count = req.GetUploadCount()
+	}
+	// 抓取内容
+	fetchUrl := fmt.Sprintf(constants.FetchUrl, searchText)
+	collector := colly.NewCollector(
+		colly.UserAgent("Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36"),
+		colly.Async(true),
+	)
+
+	// Limit the number of threads started by colly to two
+	// when visiting links which domains' matches "*bing.com*" glob
+	err := collector.Limit(&colly.LimitRule{
+		DomainGlob:  "*bing.com*",
+		Parallelism: 2,
+		RandomDelay: 1 * time.Second,
+	})
+
+	if err != nil {
+		hlog.Errorf("picture_services - UploadPictureByBatch: set limit failed, %s\n", err)
+		return 0, errno.OperationErr
+	}
+
+	// 提取元素
+	uploadCount := int64(0)
+	maxUploadCount := count
+	//.dgControl
+	collector.OnHTML("img.mimg", func(e *colly.HTMLElement) {
+		// 如果图片全部上传完成, 停止解析
+		if uploadCount >= maxUploadCount {
+			return
+		}
+		fileUrl := e.Attr("src")
+		if fileUrl == "" {
+			hlog.Infof("picture_services - UploadPictureByBatch: this connection is empty, {%s}\n", fileUrl)
+		}
+		// 处理链接参数
+		questionMarkIndex := strings.Index(fileUrl, "?")
+		if questionMarkIndex != -1 {
+			fileUrl = fileUrl[:questionMarkIndex]
+		}
+		// 上传图片
+		uploadPictureReq := &picture.UploadPictureReq{
+			FileURL: &fileUrl,
+		}
+		if searchText != "" {
+			namePrefix := searchText + strconv.Itoa(int(uploadCount)+1)
+			uploadPictureReq.PicName = &namePrefix
+		}
+		pictureId, err := s.UploadPicture(uploadPictureReq, nil, c)
+		if err != nil {
+			hlog.Errorf("picture_services - UploadPictureByBatch: upload picture failed, %s\n", err)
+		}
+		hlog.Infof("picture_services - UploadPictureByBatch: upload picture success, %d - %d / %d\n", pictureId, uploadCount, maxUploadCount)
+		uploadCount++
+	})
+
+	collector.OnError(func(r *colly.Response, err error) {
+		hlog.Errorf("picture_services - UploadPictureByBatch: request is failed, err - %s, fileUrl - %s\n", err, r.Request.URL)
+	})
+
+	// 开始爬取
+	err = collector.Visit(fetchUrl)
+	if err != nil {
+		hlog.Errorf("picture_services - UploadPictureByBatch: spider failed, %s\n", err)
+		return 0, errno.OperationErr
+	}
+
+	collector.Wait()
+
+	return uploadCount, nil
 }
